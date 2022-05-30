@@ -78,7 +78,7 @@ function SignUp() {
 
     if (username_validation(formData) && password_validation(formData)) {
         localStorage.setItem(`${formData.Email}`, JSON.stringify(formData));
-        getPageContent('logIn')
+        getPageContent('LogIn')
     } else {
         alert('enter right info')
     }
@@ -115,7 +115,6 @@ function username_validation(data) {
 function password_validation(data) {
     var validate_pass = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,10}$/;
     let ConfirmPassword = document.getElementById("ConfirmPassword").value;
-    console.log(ConfirmPassword);
     let message = document.getElementById("message");
     if (data.Password.match(validate_pass)) {
         document.querySelector('#Password').classList.add("success");
@@ -131,7 +130,7 @@ function password_validation(data) {
     } else {
         message.textContent = "Password Patern incorrect";
         message.style.backgroundColor = "#ff4d4d";
-        console.log(ConfirmPassword);
+
     }
 }
 
