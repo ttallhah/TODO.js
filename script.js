@@ -7,12 +7,12 @@ var pages = {
     'LogIn': `<form>
     <div class="mb-3">
       <label for="exampleInputEmail1" class="form-label">Email address</label>
-      <input type="email" class="form-control" id="Email">
+      <input type="email" class="form-control" id="email">
       <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
     </div>
     <div class="mb-3">
       <label for="exampleInputPassword1" class="form-label">Password</label>
-      <input type="password" class="form-control" id="Password">
+      <input type="password" class="form-control" id="password">
     </div>
     <button type="submit" class="btn btn-primary" onclick="event.preventDefault();LogIn()">Submit</button>
   </form>`,
@@ -45,13 +45,13 @@ var pages = {
     'DashBoard': `
     <div class="mininav position-absolute top-0 ">
         <label id="loggedInUser"></label>|
-        <a href="#" class="text-decoration-none">
+        <a href="#" class="text-decoration-none" onclick="getPageContent('AccountSettings')">
                 Account Settings
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person" viewBox="0 0 16 16">
                  <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"></path>
                 </svg>
         </a>|
-        <a href="#" class="text-decoration-none onclick="LogOut()">
+        <a href="#" class="text-decoration-none" onclick="LogOut()">
               LogOut
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-right" viewBox="0 0 16 16">
                 <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z"/>
@@ -59,8 +59,40 @@ var pages = {
                 </svg>
         </a>
     </div>`,
-    'TodoApp': ``
+    'TodoApp': ``,
+    'AccountSettings': `
+    <div class="mb-2">
+        <h2 id='Edit_Info'></h2>
+    </div>
+    <div class="mb-2">
+        <h6 style="color:blue;">Update Your Account Settings Here!</h6>
+    </div>
+    <form>
+    <div class="mb-2">
+        <label for="Name" class="form-label">First Name</label>
+        <input type="text" class="form-control" id="FirstName" required>
+    </div>
+    <div class="mb-2">
+        <label for="LastName" class="form-label">Last Name</label>
+        <input type="text" class="form-control" id="LastName" required>
+    </div>
+    <div class="mb-2">
+        <label for="Email" class="form-label">Email address</label>
+        <input type="email" class="form-control" id="Email" required>
+        <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+    </div>
+    <div class="mb-2">
+        <label for="Password" class="form-label" >New Password</label>
+        <input type="password" class="form-control" id="NewPassword" minlength="8"  required>
+    </div>
+    <div class="mb-2">
+        <label for="ConfirmPassword" class="form-label">current Password</label>
+        <input type="password" class="form-control" id="Password" minlength="8" required>
+    </div>
+    <button type="button" class="btn btn-primary" onclick="AccountSettings()">Update Info</button>
+</form> `
 };
+let signedInUser;
 
 function getPageContent(page) {
     var contentToReturn;
@@ -86,13 +118,15 @@ function SignUp() {
 }
 // Function For login
 function LogIn() {
-    var Email = document.getElementById("Email").value;
+    var Email = document.getElementById("email").value;
     var userData = JSON.parse(localStorage.getItem(Email));
-    console.log(userData.Email);
-    var Password = document.getElementById("Password").value;
+
+    var Password = document.getElementById("password").value;
     console.log(Password)
     if (Email == userData.Email && Password == userData.Password) {
-        DashBoard()
+        signedInUser = document.getElementById("email").value;
+        DashBoard();
+
     } else {
         alert("Enter right info");
     }
@@ -136,14 +170,19 @@ function password_validation(data) {
 
 function DashBoard(data) {
     getPageContent('DashBoard');
+    var current_userData = JSON.parse(localStorage.getItem(signedInUser));
     let user = document.getElementById("loggedInUser");
-    user.textContent = "Loged In";
-
-
-
-
+    user.textContent = `Signed in as ${current_userData.Name} `;
 }
 
 function LogOut() {
-    getPageContent('logIn');
+    getPageContent('LogIn');
+
+}
+
+function AccountSettings() {
+    var current_userinfo = JSON.parse(localStorage.getItem(signedInUser));
+    let message = document.getElementById("Edit_Info");
+    message.textContent = `${current_userinfo.Name}'s Account Settings`;
+
 }
