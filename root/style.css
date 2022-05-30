@@ -1,0 +1,17 @@
+.success,
+.success:focus {
+    outline: none;
+    border: 2px solid rgb(2, 255, 2);
+}
+
+.failed,
+.failed:focus {
+    outline: none;
+    border: 2px solid red;
+}
+
+.mininav {
+    float: right;
+    padding-left: 3px;
+    margin-left: 430px;
+}
