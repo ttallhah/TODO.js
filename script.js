@@ -62,7 +62,15 @@ var pages = {
                  <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
                 </svg>
         </a>
-    </div>`,
+    </div>
+    <div class="mt-2">
+   <h2 id="user_name"></h2>
+    </div>
+    <div class="mt-2" >
+   <p id="listsInfo"> You currently dont have any list. create one now!</p>
+    </div>
+    <button type="button" class="btn btn-secondary btn-lg">Create New List</button>
+    `,
     'TodoApp': ``,
     'AccountSettings': `<div class="mininav position-absolute top-0 " style="margin-left: 480px;">
     <label id="loggedInUser"></label>|
@@ -199,16 +207,13 @@ function email_validation(data) {
 }
 
 // Function For All the operations on dashboard
-function DashBoard(data) {
+function DashBoard() {
     getPageContent('DashBoard');
     var current_userData = JSON.parse(localStorage.getItem(signedInUser));
     let user = document.getElementById("loggedInUser");
-    user.textContent = `Signed in as ${current_userData.Name} `;
-}
-// Function For logOut
-function LogOut() {
-    sessionStorage.removeItem(signedInUser);
-    getPageContent('home');
+    user.textContent = ` ${current_userData.Name} `;
+    let dashboard_name = document.getElementById("user_name");
+    dashboard_name.textContent = `${current_userData.Name}'s Dashboard `;
 
 }
 
@@ -276,4 +281,10 @@ function updated_email_validation(data) {
         document.querySelector('#updateEmail').classList.add("failed");
         return false;
     }
+}
+// Function For logOut
+function LogOut() {
+    sessionStorage.removeItem(signedInUser);
+    getPageContent('home');
+
 }
