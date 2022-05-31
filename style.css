@@ -36,3 +36,37 @@ a {
     color: rgb(42, 86, 139);
     font-weight: bold;
 }
+
+#task_name {
+    height: 50px;
+    width: 310px;
+    font-size: 30px;
+}
+
+tr,
+th,
+td {
+    border: 1px solid black;
+    padding: auto;
+}
+
+.description {
+    width: 750px;
+    padding: 10px;
+}
+
+.srNo {
+    width: 70px;
+    padding: 4px;
+}
+
+.status {
+    text-decoration: none;
+}
+
+span {
+    width: 70px;
+    font-size: 30px;
+    padding: 4px;
+    color: rgb(255, 0, 0);
+}
