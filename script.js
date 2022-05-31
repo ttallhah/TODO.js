@@ -1,5 +1,6 @@
 let signedInUser;
 let current_user;
+let listSrNo;
 var pages = {
     'home': `<center><h4 class="text-justify">Welcome to to-do Lists. Sign up and get started today,<br>or Log in and pick up where you left!</h4></center>
     <div class="btn-group d-flex justify-content-center mt-3"  aria-label="Basic example"><center>
@@ -67,7 +68,7 @@ var pages = {
    <h2 id="user_name"></h2>
     </div>
     <div class="mt-2" >
-   <p id="listsInfo"> You currently dont have any list. create one now!</p>
+   <div id="listinfo"></div>
     </div>
     <button type="button" class="btn btn-secondary btn-lg" onclick="createNewList()">Create New List</button>
     `,
@@ -85,15 +86,15 @@ var pages = {
         <th class="description">Task Description</th>
         <th id="status">Status</th>
      </tr>
-     <tr>
+     <tr id="inputFields">
         <td class="srNo"><input type="number" class="form-control" id="srNo" minlength="1" min="1"></td>
         <td class="description"><input type="text" class="form-control" id="description"></td>
      </tr>
       </table>
       <div class=" mt-2" role="group">
-        <button type="button" class="btn btn-primary btn-lg" id="btnAdd">Add New Task</button>
+        <button type="button" class="btn btn-primary btn-lg" id="btnAdd" onclick="createNewList()">Add New Task</button>
         <button type="button" class="btn btn-success btn-lg"  id="btnsave" onclick="saveListData()">save</button>
-        <button type="button" class="btn btn-secondary btn-lg" onclick="getPageContent('DashBoard')">User Dashboard</button>
+        <button type="button" class="btn btn-secondary btn-lg" onclick="DashBoard()">User Dashboard</button>
      </div>
     </div>
     
@@ -243,7 +244,26 @@ function DashBoard() {
     user.textContent = ` ${current_userData.Name} `;
     let dashboard_name = document.getElementById("user_name");
     dashboard_name.textContent = `${current_userData.Name}'s Dashboard `;
+    let listInfo = document.getElementById("listinfo");
+    if (localStorage.getItem(listSrNo) == null) {
+        listInfo.textContent = " You currently dont have any list. create one now!";
+    } else {
+        let table = document.getElementById("listinfo");
+        let list_Name = JSON.parse(localStorage.getItem(listSrNo.list_Name));
+        let srNo = JSON.parse(localStorage.getItem(listSrNo.srNo));
+        let description = JSON.parse(localStorage.getItem(listSrNo.description));
+        let template = `
+        <h2>${list_Name}</h2>
+        <tr>
+            <td style="border: 1px solid black; width: 70px; padding: 4px;">${srNo}</td>
+            <td style="border: 1px solid black;
+            width: 750px;padding: 10px;">${description}</td>
+            <td><span><a href=#" class="status" id="statusbtn">&#63; </a></span></td>
+        </tr>`;
 
+        table.innerHTML += template;
+
+    }
 }
 
 function AccountSettings() {
@@ -321,33 +341,52 @@ function LogOut() {
 function createNewList() {
     getPageContent('TodoApp');
 
-    let btnAdd = document.querySelector('#btnAdd');
     let table = document.querySelector('#newListTable');
-    let btnsave = document.querySelector('#btnsave');
     let srNoInput = document.querySelector('#srNo');
     let descriptionInput = document.querySelector('#description');
-    btnAdd.addEventListener('click', () => {
-        let srNo = srNoInput.value;
-        let description = descriptionInput.value;
-        let template = `
+
+    document.getElementById('task_name').style.display = "";
+    document.getElementById('inputFields').style.display = "";
+    let srNo = srNoInput.value;
+    let description = descriptionInput.value;
+    let template = `
                 <tr>
                     <td>${srNo}</td>
                     <td>${description}</td>
                     <td><span><a href=#" class="status" id="statusbtn">&#63; </a></span></td>
                 </tr>`;
 
-        table.innerHTML += template;
+    table.innerHTML += template;
 
-    });
+
 }
 
 function saveListData() {
+
+    document.getElementById('task_name').innerText = document.getElementById('task_name').value;
+    document.getElementById('inputFields').style.display = "none";
     let newListData = {
-        List_Name: document.getElementById('task_name').value,
+        list_Name: document.getElementById('task_name').value,
         description: document.getElementById('description').value,
         srNo: document.getElementById('srNo').value
     }
-    console.log(signedInUser)
     localStorage.setItem(newListData.srNo, JSON.stringify(newListData));
+    listSrNo = document.getElementById('srNo').value;
+    let table = document.querySelector('#newListTable');
+    let srNoInput = document.querySelector('#srNo');
+    let listNameInput = document.querySelector('#task_name');
+    let descriptionInput = document.querySelector('#description');
+    let srNo = srNoInput.value;
+    let description = descriptionInput.value;
+    let template = `
+       
+                <tr>
+                    <td>${srNo}</td>
+                    <td>${description}</td>
+                    <td><span><a href=#" class="status" id="statusbtn">&#63; </a></span></td>
+                </tr>`;
+
+    table.innerHTML += template;
+
 
 }

@@ -13,7 +13,7 @@
 .mininav {
     float: right;
     padding-left: 3px;
-    margin-left: 660px;
+    margin-left: 600px;
 }
 
 body {
@@ -46,7 +46,6 @@ a {
 tr,
 th,
 td {
-    border: 1px solid black;
     padding: auto;
 }
 
