@@ -70,14 +70,13 @@ var pages = {
     <div class="mt-2" >
    <div id="listinfo"></div>
     </div>
-    <button type="button" class="btn btn-secondary btn-lg" onclick="createNewList()">Create New List</button>
+    <button type="button" class="btn btn-secondary btn-lg" onclick="getPageContent('TodoApp')";>Create New List</button>
     `,
     'TodoApp': `
     <form>
     <div class="mb-3">
-      
-      <input type="text" class="form-control" id="task_name" placeholder="Enter List Name here">
-      
+      <input type="text" class="form-control " id="task_name" placeholder="Enter List Name here">
+      <h2 id= 'saved_list_name'></h2>
     </div>
     <div class="mb-3">
       <table id="newListTable">
@@ -87,12 +86,12 @@ var pages = {
         <th id="status">Status</th>
      </tr>
      <tr id="inputFields">
-        <td class="srNo"><input type="number" class="form-control" id="srNo" minlength="1" min="1"></td>
-        <td class="description"><input type="text" class="form-control" id="description"></td>
+        <td class="srNo">Task#1</td>
+        <td class="description"><input type="text" class="form-control new-task" id="taskno1"></td>
      </tr>
       </table>
       <div class=" mt-2" role="group">
-        <button type="button" class="btn btn-primary btn-lg" id="btnAdd" onclick="createNewList()">Add New Task</button>
+        <button type="button" class="btn btn-primary btn-lg" id="btnAdd" onclick="createNewTask();">Add New Task</button>
         <button type="button" class="btn btn-success btn-lg"  id="btnsave" onclick="saveListData()">save</button>
         <button type="button" class="btn btn-secondary btn-lg" onclick="DashBoard()">User Dashboard</button>
      </div>
@@ -102,6 +101,30 @@ var pages = {
     
     
     `,
+    //     'addNewTask': `<form>
+    //     <div class="mb-3">
+    //       <input type="text" class="form-control" id="task_name" placeholder="Enter List Name here">
+    //     </div>
+    //     <div class="mb-3" id="newListTable">
+    //       <table id="newListTable">
+    //       <tr>
+    //         <th class="srNo">Sr.#</th>
+    //         <th class="description">Task Description</th>
+    //         <th id="status">Status</th>
+    //      </tr>
+    //      <tr id="inputFields">
+    //         <td class="srNo"><input type="number" class="form-control" id="srNo" minlength="1" min="1"></td>
+    //         <td class="description"><input type="text" class="form-control" id="description"></td>
+    //      </tr>
+    //       </table>
+    //       <div class=" mt-2" role="group">
+    //         <button type="button" class="btn btn-primary btn-lg" id="btnAdd" onclick="createNewTask()">Add New Task</button>
+    //         <button type="button" class="btn btn-success btn-lg"  id="btnsave" onclick="saveUpdatedListData()">save</button>
+    //         <button type="button" class="btn btn-secondary btn-lg" onclick="DashBoard()">User Dashboard</button>
+    //      </div>
+    //     </div>
+
+    //   </form>`,
     'AccountSettings': `<div class="mininav position-absolute top-0 " style="margin-left: 480px;">
     <label id="loggedInUser"></label>|
     <a href="#" class="text-decoration-none" onclick="AccountSettings()">
@@ -256,8 +279,7 @@ function DashBoard() {
         <h2>${list_Name}</h2>
         <tr>
             <td style="border: 1px solid black; width: 70px; padding: 4px;">${srNo}</td>
-            <td style="border: 1px solid black;
-            width: 750px;padding: 10px;">${description}</td>
+            <td style="border: 1px solid black;width: 750px;padding: 10px;">${description}</td>
             <td><span><a href=#" class="status" id="statusbtn">&#63; </a></span></td>
         </tr>`;
 
@@ -339,7 +361,7 @@ function LogOut() {
 }
 
 function createNewList() {
-    getPageContent('TodoApp');
+
 
     let table = document.querySelector('#newListTable');
     let srNoInput = document.querySelector('#srNo');
@@ -353,40 +375,104 @@ function createNewList() {
                 <tr>
                     <td>${srNo}</td>
                     <td>${description}</td>
-                    <td><span><a href=#" class="status" id="statusbtn">&#63; </a></span></td>
+                    <td><input type="checkbox"></td>
                 </tr>`;
 
     table.innerHTML += template;
 
 
+}
+
+function createNewTask() {
+    // getPageContent(addNewTask)
+    let listNameInput = document.querySelector('#saved_list_name');
+    let table = document.querySelector('#newListTable');
+    let task_name = document.getElementById('task_name').value
+    document.getElementById('task_name').style.display = "none";
+    document.getElementById('inputFields').style.display = "none";
+    let description = document.getElementById('taskno1').value
+    var taskCount = document.getElementsByClassName("new-task");
+    var total_tasks = taskCount.length;
+    if (taskCount.length == 1) {
+        task1 = `
+    <tr id="inputFields">
+    <td class="srNo">Task#${total_tasks}</td>
+    <td class="description">${description}</td>
+    <td><input type="checkbox"></td>
+    </tr>
+    `;
+        table.innerHTML += task1;
+
+    }
+    var total_tasks = taskCount.length + 1;
+    let template = `
+    <tr id="inputFields">
+    <tr>
+    <td class="srNo">Task#${total_tasks}</td>
+    <td class="description"><input type="text" class="form-control new-task" id=""></td>
+    <td><input type="checkbox"></td>
+    </tr>`;
+    console.log
+    table.innerHTML += template;
+    for (var i = 1; i < taskCount.length; i++) {
+        taskCount[i].setAttribute("id", "taskno" + i);
+    }
+    let task_name_field = `${task_name}`;
+    listNameInput.textContent = task_name_field;
 }
 
 function saveListData() {
 
-    document.getElementById('task_name').innerText = document.getElementById('task_name').value;
+    let task_name = document.getElementById('task_name').value
+
     document.getElementById('inputFields').style.display = "none";
-    let newListData = {
-        list_Name: document.getElementById('task_name').value,
-        description: document.getElementById('description').value,
-        srNo: document.getElementById('srNo').value
-    }
-    localStorage.setItem(newListData.srNo, JSON.stringify(newListData));
-    listSrNo = document.getElementById('srNo').value;
+    document.getElementById('task_name').style.display = "none";
+
+    // let newListData = {
+    //     list_Name: document.getElementById('task_name').value,
+    //     description: document.getElementById('description').value,
+    //     srNo: document.getElementById('srNo').value
+    // }
+    // localStorage.setItem(newListData.srNo, JSON.stringify(newListData));
     let table = document.querySelector('#newListTable');
-    let srNoInput = document.querySelector('#srNo');
-    let listNameInput = document.querySelector('#task_name');
-    let descriptionInput = document.querySelector('#description');
-    let srNo = srNoInput.value;
+    let listNameInput = document.querySelector('#saved_list_name');
+    let descriptionInput = document.querySelector('#taskno1');
+    var taskCount = document.getElementsByClassName("new-task");
     let description = descriptionInput.value;
+    for (var i = 1; i < taskCount.length; i++) {
+        taskCount[i].setAttribute("id", "taskno" + i);
+    }
     let template = `
-       
-                <tr>
-                    <td>${srNo}</td>
-                    <td>${description}</td>
-                    <td><span><a href=#" class="status" id="statusbtn">&#63; </a></span></td>
-                </tr>`;
+                    <tr>
+                        <td>Task#1</td>
+                        <td>${description}</td>
+                        <td><input type="checkbox"></td>
+                    </tr>`;
+    let task_name_field = `${task_name}`;
 
+    listNameInput.textContent = task_name_field;
     table.innerHTML += template;
-
-
 }
+
+// function saveUpdatedListData() {
+//     document.getElementById('inputFields').style.display = "none";
+//     document.getElementById('task_name').style.display = "none";
+//     let newListData = {
+//         list_Name: document.getElementById('task_name').value,
+//         description: document.getElementById('description').value,
+//         srNo: document.getElementById('srNo').value
+//     }
+//     localStorage.setItem(newListData.srNo, JSON.stringify(newListData));
+//     let table = document.querySelector('#newListTable');
+//     let srNoInput = document.querySelector('#srNo');
+//     let descriptionInput = document.querySelector('#description');
+//     let srNo = srNoInput.value;
+//     let description = descriptionInput.value;
+//     let template = `
+//                 <tr>
+//                     <td>${srNo}</td>
+//                     <td>${description}</td>
+//                     <td><input type="checkbox"></td>
+//                 </tr>`;
+//     table.innerHTML += template;
+// }

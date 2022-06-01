@@ -47,6 +47,7 @@ tr,
 th,
 td {
     padding: auto;
+    border: 1px solid black;
 }
 
 .description {
