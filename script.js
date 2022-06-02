@@ -22,7 +22,7 @@ var pages = {
     'SignUp': `<div class="mb-4 mt-4">
     <h3>Create Your Account</h3>
 </div>
-     <form style='border:1px solid black; background-color:rgb(137,165,255); padding:10px;'>
+     <form style='border:1px solid black; background-color:rgb(165, 178, 198); padding:10px;'>
     <div class="mb-3">
         <label for="Name" class="form-label">First Name</label>
         <input type="text" class="form-control" id="FirstName" required>
@@ -49,13 +49,13 @@ var pages = {
 </form>`,
     'DashBoard': `
     <div class="mininav position-absolute top-0 ">
-        <label id="loggedInUser"></label>|
+        <label id="loggedInUser"></label> |
         <a href="#" class="text-decoration-none" onclick="AccountSettings()">
                 Account Settings
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person" viewBox="0 0 16 16">
                  <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"></path>
                 </svg>
-        </a>|
+        </a> |
         <a href="#" class="text-decoration-none" onclick="LogOut()">
               LogOut
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-right" viewBox="0 0 16 16">
@@ -82,12 +82,13 @@ var pages = {
       <table id="newListTable">
       <tr>
         <th class="srNo">Sr.#</th>
-        <th class="description">Task Description</th>
+        <th class="thdescription">Task Description</th>
         <th id="status">Status</th>
      </tr>
      <tr id="inputFields">
         <td class="srNo">Task#1</td>
-        <td class="description"><input type="text" class="form-control new-task" id="taskno1"></td>
+        <td><input type="text" class="form-control task description" id="taskno1"></td>
+        <td class=""><div class=checkbox><input type="checkbox" class="status"  id="myCheck"></div></td>
      </tr>
       </table>
       <div class=" mt-2" role="group">
@@ -97,34 +98,12 @@ var pages = {
      </div>
     </div>
     
-  </form>
-    
-    
+  </form>    
     `,
-    //     'addNewTask': `<form>
-    //     <div class="mb-3">
-    //       <input type="text" class="form-control" id="task_name" placeholder="Enter List Name here">
-    //     </div>
-    //     <div class="mb-3" id="newListTable">
-    //       <table id="newListTable">
-    //       <tr>
-    //         <th class="srNo">Sr.#</th>
-    //         <th class="description">Task Description</th>
-    //         <th id="status">Status</th>
-    //      </tr>
-    //      <tr id="inputFields">
-    //         <td class="srNo"><input type="number" class="form-control" id="srNo" minlength="1" min="1"></td>
-    //         <td class="description"><input type="text" class="form-control" id="description"></td>
-    //      </tr>
-    //       </table>
-    //       <div class=" mt-2" role="group">
-    //         <button type="button" class="btn btn-primary btn-lg" id="btnAdd" onclick="createNewTask()">Add New Task</button>
-    //         <button type="button" class="btn btn-success btn-lg"  id="btnsave" onclick="saveUpdatedListData()">save</button>
-    //         <button type="button" class="btn btn-secondary btn-lg" onclick="DashBoard()">User Dashboard</button>
-    //      </div>
-    //     </div>
-
-    //   </form>`,
+    'savedList': `<table>
+        
+    
+                </table>`,
     'AccountSettings': `<div class="mininav position-absolute top-0 " style="margin-left: 480px;">
     <label id="loggedInUser"></label>|
     <a href="#" class="text-decoration-none" onclick="AccountSettings()">
@@ -203,7 +182,6 @@ function LogIn() {
         signedInUser = document.getElementById("email").value;
         sessionStorage.setItem(signedInUser, JSON.stringify(userData))
         var user = JSON.parse(sessionStorage.getItem(signedInUser));
-        console.log(user.Password);
         DashBoard();
 
     } else {
@@ -268,24 +246,25 @@ function DashBoard() {
     let dashboard_name = document.getElementById("user_name");
     dashboard_name.textContent = `${current_userData.Name}'s Dashboard `;
     let listInfo = document.getElementById("listinfo");
-    if (localStorage.getItem(listSrNo) == null) {
-        listInfo.textContent = " You currently dont have any list. create one now!";
-    } else {
-        let table = document.getElementById("listinfo");
-        let list_Name = JSON.parse(localStorage.getItem(listSrNo.list_Name));
-        let srNo = JSON.parse(localStorage.getItem(listSrNo.srNo));
-        let description = JSON.parse(localStorage.getItem(listSrNo.description));
-        let template = `
-        <h2>${list_Name}</h2>
-        <tr>
-            <td style="border: 1px solid black; width: 70px; padding: 4px;">${srNo}</td>
-            <td style="border: 1px solid black;width: 750px;padding: 10px;">${description}</td>
-            <td><span><a href=#" class="status" id="statusbtn">&#63; </a></span></td>
-        </tr>`;
+    listInfo.textContent = " You currently dont have any list. create one now!";
+    // if (localStorage.getItem(listSrNo) == null) {
+    //    
+    // } else {
+    //     let table = document.getElementById("listinfo");
+    //     let list_Name = JSON.parse(localStorage.getItem(listSrNo.list_Name));
+    //     let srNo = JSON.parse(localStorage.getItem(listSrNo.srNo));
+    //     let description = JSON.parse(localStorage.getItem(listSrNo.description));
+    //     let template = `
+    //     <h2>${list_Name}</h2>
+    //     <tr>
+    //         <td style="border: 1px solid black; width: 70px; padding: 4px;">${srNo}</td>
+    //         <td style="border: 1px solid black;width: 750px;padding: 10px;">${description}</td>
+    //         <td><span><a href=#" class="status" id="statusbtn">&#63; </a></span></td>
+    //     </tr>`;
 
-        table.innerHTML += template;
+    //     table.innerHTML += template;
 
-    }
+    // }
 }
 
 function AccountSettings() {
@@ -390,29 +369,18 @@ function createNewTask() {
     let task_name = document.getElementById('task_name').value
     document.getElementById('task_name').style.display = "none";
     document.getElementById('inputFields').style.display = "none";
-    let description = document.getElementById('taskno1').value
-    var taskCount = document.getElementsByClassName("new-task");
-    var total_tasks = taskCount.length;
-    if (taskCount.length == 1) {
-        task1 = `
-    <tr id="inputFields">
-    <td class="srNo">Task#${total_tasks}</td>
-    <td class="description">${description}</td>
-    <td><input type="checkbox"></td>
-    </tr>
-    `;
-        table.innerHTML += task1;
 
-    }
-    var total_tasks = taskCount.length + 1;
+    var taskCount = document.getElementsByClassName("task");
+    var total_tasks = taskCount.length;
+
+    var total_tasks = taskCount.length;
     let template = `
     <tr id="inputFields">
     <tr>
     <td class="srNo">Task#${total_tasks}</td>
-    <td class="description"><input type="text" class="form-control new-task" id=""></td>
+    <td class="description"><input type="text" class="form-control task" id=""></td>
     <td><input type="checkbox"></td>
     </tr>`;
-    console.log
     table.innerHTML += template;
     for (var i = 1; i < taskCount.length; i++) {
         taskCount[i].setAttribute("id", "taskno" + i);
@@ -422,57 +390,34 @@ function createNewTask() {
 }
 
 function saveListData() {
-
-    let task_name = document.getElementById('task_name').value
-
-    document.getElementById('inputFields').style.display = "none";
-    document.getElementById('task_name').style.display = "none";
-
-    // let newListData = {
-    //     list_Name: document.getElementById('task_name').value,
-    //     description: document.getElementById('description').value,
-    //     srNo: document.getElementById('srNo').value
+    // document.getElementById('inputFields').style.display = "none";
+    // document.getElementById('task_name').style.display = "none";
+    // let task_name = document.getElementById('task_name').value
+    // let table = document.querySelector('#newListTable');
+    // let listNameInput = document.querySelector('#saved_list_name');
+    // var taskCount = document.getElementsByClassName("task");
+    // var total_tasks = taskCount.length;
+    // let descriptionInput = document.getElementsByClassName('task')
+    // let description = descriptionInput[total_tasks - 1].value;
+    // for (var i = 1; i < taskCount.length; i++) {
+    //     taskCount[i].setAttribute("id", "taskno" + i);
     // }
-    // localStorage.setItem(newListData.srNo, JSON.stringify(newListData));
-    let table = document.querySelector('#newListTable');
-    let listNameInput = document.querySelector('#saved_list_name');
-    let descriptionInput = document.querySelector('#taskno1');
-    var taskCount = document.getElementsByClassName("new-task");
-    let description = descriptionInput.value;
-    for (var i = 1; i < taskCount.length; i++) {
-        taskCount[i].setAttribute("id", "taskno" + i);
-    }
-    let template = `
-                    <tr>
-                        <td>Task#1</td>
-                        <td>${description}</td>
-                        <td><input type="checkbox"></td>
-                    </tr>`;
-    let task_name_field = `${task_name}`;
+    // let template = `
+    //                 <tr>
+    //                     <td>Task#${total_tasks}</td>
+    //                     <td class="task">${description}</td>
+    //                     <td><input type="checkbox"></td>
+    //                 </tr>`;
+    // let task_name_field = `${task_name}`;
+    // listNameInput.textContent = task_name_field;
+    // if (total_tasks <= 1) {
+    //     table.innerHTML += template;
+    // }
+    // // let newListData = {
+    // //     list_Name: document.getElementById('task_name').value,
+    // //     description: document.getElementById('description').value,
+    // //     srNo: document.getElementById('srNo').value
+    // // }
 
-    listNameInput.textContent = task_name_field;
-    table.innerHTML += template;
+    // // localStorage.setItem(newListData.srNo, JSON.stringify(newListData));
 }
-
-// function saveUpdatedListData() {
-//     document.getElementById('inputFields').style.display = "none";
-//     document.getElementById('task_name').style.display = "none";
-//     let newListData = {
-//         list_Name: document.getElementById('task_name').value,
-//         description: document.getElementById('description').value,
-//         srNo: document.getElementById('srNo').value
-//     }
-//     localStorage.setItem(newListData.srNo, JSON.stringify(newListData));
-//     let table = document.querySelector('#newListTable');
-//     let srNoInput = document.querySelector('#srNo');
-//     let descriptionInput = document.querySelector('#description');
-//     let srNo = srNoInput.value;
-//     let description = descriptionInput.value;
-//     let template = `
-//                 <tr>
-//                     <td>${srNo}</td>
-//                     <td>${description}</td>
-//                     <td><input type="checkbox"></td>
-//                 </tr>`;
-//     table.innerHTML += template;
-// }
