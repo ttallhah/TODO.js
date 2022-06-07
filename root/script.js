@@ -130,7 +130,9 @@ var pages = {
             </tr>
             <tbody id="list-table-body">
             </tbody>
-        </table>`
+        </table>
+        <button type="button" class="btn btn-secondary btn-lg mt-3" onclick="dashBoard(user)">Return to Dashboard</button>
+        `
 };
 
 function getPageContent(page) {
@@ -238,7 +240,7 @@ function dashBoard(currentUser) {
 
     let header = document.createElement('h1')
     header.classList = 'text-center mb-4'
-    header.innerText = `${currentUser.Name} ${currentUser.LastName}`
+    header.innerText = `${currentUser.Name} ${currentUser.LastName}'s Lists`;
 
     content.appendChild(header)
 
@@ -307,24 +309,28 @@ function view_list(btn_id) {
     let listName = document.getElementById('list-name');
     let tabelBody = document.getElementById('list-table-body');
     listNameField = null;
-    let list = null;
-    for (const list in listData[btn_id]) {
-        listNameField = // html
-            `<h1>${listData[btn_id].name}</h1>`
-            // list = // html
-            //     `<div >
-            //             <tr>
-            //                 <td class="text-center">${listsData[btn_id]}</td>
-            //                 <td></td>
-            //                 <td>
-            //                     >
-            //                 </td>
-            //             </tr>
-            //         </div>`;
+    let taskRow = null;
 
-        // tabelBody.innerHTML += list
+    var selected_list = listData[btn_id]
+    for (const list in selected_list.name) {
+        var taskCount = document.getElementsByClassName("task");
+        var total_tasks = taskCount.length + 1;
+        listNameField = // html
+            `<h1>${selected_list.name}</h1>`
+        taskRow = // html
+            `<div >
+                        <tr>
+                            <td class="text-center task status" >Task#${total_tasks}</td>
+                            <td>${selected_list.tasks[list][0]}</td>
+                            <td class="text-center status">${selected_list.tasks[list][1]}</td>
+                            
+                        </tr>
+                    </div>`;
+
+        tabelBody.innerHTML += taskRow
 
     }
+
     listName.innerHTML += listNameField
 }
 
@@ -439,8 +445,6 @@ function createNewTask() {
 
     var taskCount = document.getElementsByClassName("task");
     var total_tasks = taskCount.length;
-
-    var total_tasks = taskCount.length;
     let template = `
     <tr id="inputFields">
     <tr>
@@ -477,12 +481,12 @@ let lists = {
     1: {
         name: "My List 1",
         tasks: [
-            ['Task 11', false],
-            ['Task 12', false],
-            ['Task 13', false],
-            ['Task 14', false],
-            ['Task 15', false],
-            ['Task 16', false]
+            ['Task 21', false],
+            ['Task 22', false],
+            ['Task 23', false],
+            ['Task 24', false],
+            ['Task 25', false],
+            ['Task 26', false]
         ]
     },
     2: {
