@@ -60,12 +60,12 @@ var pages = {
       <table id="newListTable">
       <tr>
         <th class="srNo text-center">Sr.#</th>
-        <th class="thdescriptio text-center">Task Description</th>
+        <th class="thdescription text-center">Task Description</th>
         <th class="status text-center">Status</th>
      </tr>
      <tr id="inputFields">
         <td class="srNo">Task#1</td>
-        <td><input type="text" class="form-control description" id="taskno1"></td>
+        <td><input type="text" class="form-control description" id="taskno0"></td>
         <td class="status"><div class=checkbox><input type="checkbox" class="status"  id="myCheck"></div></td>
      </tr>
       </table>
@@ -132,8 +132,9 @@ var pages = {
             </tbody>
         </table>
         <div class=" mt-2" role="group">
-        <button type="button" class="btn btn-secondary btn-lg mt-3" onclick="dashBoard(user)">Return to Dashboard</button>
         <button type="button" class="btn btn-primary btn-lg mt-3" id="btnAdd" onclick="createNewTask();">Add New Task</button>
+        <button type="button" class="btn btn-success btn-lg mt-3"  id="btnsave" onclick="saveListData()">save</button>
+        <button type="button" class="btn btn-secondary btn-lg mt-3" onclick="dashBoard(user)">Return to Dashboard</button>
         </div>
         `
 };
@@ -424,7 +425,7 @@ function saveListData() {
     let user = document.getElementById("loggedInUser");
     user.textContent = `Signed in as ${current_userinfo.Name} `;
     var listName = document.getElementById('task_name').value;
-    var taskDescription = document.getElementById('taskno1').value;
+    var taskDescription = document.getElementById('taskno0').value;
     var taskStatus = document.getElementById("myCheck").checked
 
     lists[listsindex += 1] = {
@@ -454,9 +455,9 @@ function createNewTask() {
     let template = `
     <tr >
     <tr>
-    <td class="srNo">Task#${total_tasks}</td>
+    <td class="text-center status">Task#${total_tasks}</td>
     <td class="description"><input type="text" class="form-control task" id=""></td>
-    <td><input type="checkbox"></td>
+    <td class="text-center status"><input type="checkbox"></td>
     </tr>`;
     table.innerHTML += template;
     for (var i = 0; i < taskCount.length; i++) {
