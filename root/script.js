@@ -3,6 +3,7 @@ let current_user;
 let user;
 let listSrNo;
 var listsindex = 0
+let total_tasks;
 var pages = {
     home: `<center><h4 class="text-justify">Welcome to to-do Lists. Sign up and get started today,<br>or Log in and pick up where you left!</h4></center>
     <div class="btn-group d-flex justify-content-center mt-3"  aria-label="Basic example"><center>
@@ -64,12 +65,11 @@ var pages = {
      </tr>
      <tr id="inputFields">
         <td class="srNo">Task#1</td>
-        <td><input type="text" class="form-control task description" id="taskno1"></td>
+        <td><input type="text" class="form-control description" id="taskno1"></td>
         <td class="status"><div class=checkbox><input type="checkbox" class="status"  id="myCheck"></div></td>
      </tr>
       </table>
       <div class=" mt-2" role="group">
-        <button type="button" class="btn btn-primary btn-lg" id="btnAdd" onclick="createNewTask();">Add New Task</button>
         <button type="button" class="btn btn-success btn-lg"  id="btnsave" onclick="saveListData()">save</button>
         <button type="button" class="btn btn-secondary btn-lg" onclick="dashBoard(user)">User Dashboard</button>
      </div>
@@ -121,7 +121,7 @@ var pages = {
             </tbody>
         </table>`,
     viewList: //html
-        `<h1 id='list-name'></h1>
+        `<h1 id='listName'></h1>
         <table id="list-table" class="">
             <tr>
                 <th id="serial">Sr. #</th>
@@ -131,7 +131,10 @@ var pages = {
             <tbody id="list-table-body">
             </tbody>
         </table>
+        <div class=" mt-2" role="group">
         <button type="button" class="btn btn-secondary btn-lg mt-3" onclick="dashBoard(user)">Return to Dashboard</button>
+        <button type="button" class="btn btn-primary btn-lg mt-3" id="btnAdd" onclick="createNewTask();">Add New Task</button>
+        </div>
         `
 };
 
@@ -306,7 +309,7 @@ function view_list(btn_id) {
     var list_id = btn_id.match(/(\d+)/);
     btn_id = (list_id[0])
     var listData = JSON.parse(localStorage.getItem(key));
-    let listName = document.getElementById('list-name');
+    let listName = document.getElementById('listName');
     let tabelBody = document.getElementById('list-table-body');
     listNameField = null;
     let taskRow = null;
@@ -314,23 +317,23 @@ function view_list(btn_id) {
     var selected_list = listData[btn_id]
     for (const list in selected_list.name) {
         var taskCount = document.getElementsByClassName("task");
-        var total_tasks = taskCount.length + 1;
+        total_tasks = taskCount.length + 1;
         listNameField = // html
             `<h1>${selected_list.name}</h1>`
         taskRow = // html
-            `<div >
+            `
                         <tr>
-                            <td class="text-center task status" >Task#${total_tasks}</td>
-                            <td>${selected_list.tasks[list][0]}</td>
+                            <td class="text-center status" >Task#${total_tasks}</td>
+                            <td class="task">${selected_list.tasks[list][0]}</td>
                             <td class="text-center status">${selected_list.tasks[list][1]}</td>
                         </tr>
-                    </div>`;
+                    `;
 
         tabelBody.innerHTML += taskRow
-
+        listName.innerHTML += listNameField
     }
 
-    listName.innerHTML += listNameField
+
 }
 
 function AccountSettings() {
@@ -416,35 +419,6 @@ function createNewList() {
 
 }
 
-function createNewTask() {
-    var current_userinfo = JSON.parse(localStorage.getItem(signedInUser));
-    let user = document.getElementById("loggedInUser");
-    user.textContent = `Signed in as ${current_userinfo.Name} `;
-    document.getElementById('mininav').style.display = '';
-    // getPageContent(addNewTask)
-    let listNameInput = document.querySelector('#saved_list_name');
-    let table = document.querySelector('#newListTable');
-    let task_name = document.getElementById('task_name').value
-    document.getElementById('task_name').style.display = "none";
-    document.getElementById('inputFields').style.display = "none";
-
-    var taskCount = document.getElementsByClassName("task");
-    var total_tasks = taskCount.length;
-    let template = `
-    <tr id="inputFields">
-    <tr>
-    <td class="srNo">Task#${total_tasks}</td>
-    <td class="description"><input type="text" class="form-control task" id=""></td>
-    <td><input type="checkbox"></td>
-    </tr>`;
-    table.innerHTML += template;
-    for (var i = 1; i < taskCount.length; i++) {
-        taskCount[i].setAttribute("id", "taskno" + i);
-    }
-    let task_name_field = `${task_name}`;
-    listNameInput.textContent = task_name_field;
-}
-
 function saveListData() {
     var current_userinfo = JSON.parse(localStorage.getItem(signedInUser));
     let user = document.getElementById("loggedInUser");
@@ -452,8 +426,6 @@ function saveListData() {
     var listName = document.getElementById('task_name').value;
     var taskDescription = document.getElementById('taskno1').value;
     var taskStatus = document.getElementById("myCheck").checked
-    console.log(listName)
-    console.log(taskDescription)
 
     lists[listsindex += 1] = {
         name: listName,
@@ -462,9 +434,35 @@ function saveListData() {
         ]
     };
 
-    localStorage.setItem(stringToHash(signedInUser), lists)
-    localStorage.setItem(stringToHash(signedInUser), JSON.stringify(lists))
+    localStorage.setItem(stringToHash(signedInUser), lists);
+    localStorage.setItem(stringToHash(signedInUser), JSON.stringify(lists));
+
     view_list(`list-view-${listsindex}`)
+}
+
+function createNewTask() {
+    var current_userinfo = JSON.parse(localStorage.getItem(signedInUser));
+    let user = document.getElementById("loggedInUser");
+    user.textContent = `Signed in as ${current_userinfo.Name} `;
+    document.getElementById('mininav').style.display = '';
+
+
+    let table = document.getElementById('list-table-body');
+
+    var taskCount = document.getElementsByClassName("task");
+
+    let template = `
+    <tr >
+    <tr>
+    <td class="srNo">Task#${total_tasks}</td>
+    <td class="description"><input type="text" class="form-control task" id=""></td>
+    <td><input type="checkbox"></td>
+    </tr>`;
+    table.innerHTML += template;
+    for (var i = 0; i < taskCount.length; i++) {
+        taskCount[i].setAttribute("id", "taskno" + i);
+    }
+    total_tasks++
 }
 
 function listsPage(listId = null) {
