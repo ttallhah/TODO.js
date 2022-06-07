@@ -2,6 +2,7 @@ let signedInUser;
 let current_user;
 let user;
 let listSrNo;
+var listsindex = 0
 var pages = {
     home: `<center><h4 class="text-justify">Welcome to to-do Lists. Sign up and get started today,<br>or Log in and pick up where you left!</h4></center>
     <div class="btn-group d-flex justify-content-center mt-3"  aria-label="Basic example"><center>
@@ -53,7 +54,6 @@ var pages = {
     <form>
     <div class="mb-3">
       <input type="text" class="form-control " id="task_name" placeholder="Enter List Name here">
-      <h2 id= 'saved_list_name'></h2>
     </div>
     <div class="mb-3">
       <table id="newListTable">
@@ -323,7 +323,6 @@ function view_list(btn_id) {
                             <td class="text-center task status" >Task#${total_tasks}</td>
                             <td>${selected_list.tasks[list][0]}</td>
                             <td class="text-center status">${selected_list.tasks[list][1]}</td>
-                            
                         </tr>
                     </div>`;
 
@@ -414,20 +413,6 @@ function createNewList() {
     document.getElementById('mininav').style.display = '';
     getPageContent('listPage');
 
-    // let table = document.querySelector('#newListTable');
-    // let srNoInput = document.querySelector('#srNo');
-    // let descriptionInput = document.querySelector('#description');
-    // // let srNo = srNoInput.value;
-    // // let description = descriptionInput.value;
-    // let template = `
-    //             <tr>
-    //                 <td>${srNo}</td>
-    //                 <td>${description}</td>
-    //                 <td><input type="checkbox"></td>
-    //             </tr>`;
-
-    // table.innerHTML += template;
-
 
 }
 
@@ -464,9 +449,22 @@ function saveListData() {
     var current_userinfo = JSON.parse(localStorage.getItem(signedInUser));
     let user = document.getElementById("loggedInUser");
     user.textContent = `Signed in as ${current_userinfo.Name} `;
+    var listName = document.getElementById('task_name').value;
+    var taskDescription = document.getElementById('taskno1').value;
+    var taskStatus = document.getElementById("myCheck").checked
+    console.log(listName)
+    console.log(taskDescription)
+
+    lists[listsindex += 1] = {
+        name: listName,
+        tasks: [
+            [taskDescription, taskStatus]
+        ]
+    };
+
     localStorage.setItem(stringToHash(signedInUser), lists)
     localStorage.setItem(stringToHash(signedInUser), JSON.stringify(lists))
-
+    view_list(`list-view-${listsindex}`)
 }
 
 function listsPage(listId = null) {
@@ -476,197 +474,7 @@ function listsPage(listId = null) {
     document.getElementById('content');
 
 }
-
-let lists = {
-    1: {
-        name: "My List 1",
-        tasks: [
-            ['Task 21', false],
-            ['Task 22', false],
-            ['Task 23', false],
-            ['Task 24', false],
-            ['Task 25', false],
-            ['Task 26', false]
-        ]
-    },
-    2: {
-        name: "My List 2",
-        tasks: [
-            ['Task 21', false],
-            ['Task 22', false],
-            ['Task 23', false],
-            ['Task 24', false],
-            ['Task 25', false],
-            ['Task 26', false]
-        ]
-    },
-    3: {
-        name: "My List 3",
-        tasks: [
-            ['Task 31', false],
-            ['Task 32', false],
-            ['Task 33', false],
-            ['Task 34', false],
-            ['Task 35', false],
-            ['Task 36', false]
-        ]
-    },
-    4: {
-        name: "My List 4",
-        tasks: [
-            ['Task 41', false],
-            ['Task 42', false],
-            ['Task 43', false],
-            ['Task 44', false],
-            ['Task 45', false],
-            ['Task 46', false]
-        ]
-    },
-    5: {
-        name: "My List 5",
-        tasks: [
-            ['Task 41', false],
-            ['Task 42', false],
-            ['Task 43', false],
-            ['Task 44', false],
-            ['Task 45', false],
-            ['Task 46', false]
-        ]
-    },
-    6: {
-        name: "My List 6",
-        tasks: [
-            ['Task 41', false],
-            ['Task 42', false],
-            ['Task 43', false],
-            ['Task 44', false],
-            ['Task 45', false],
-            ['Task 46', false]
-        ]
-    },
-    7: {
-        name: "My List 7",
-        tasks: [
-            ['Task 41', false],
-            ['Task 42', false],
-            ['Task 43', false],
-            ['Task 44', false],
-            ['Task 45', false],
-            ['Task 46', false]
-        ]
-    },
-    8: {
-        name: "My List 8",
-        tasks: [
-            ['Task 41', false],
-            ['Task 42', false],
-            ['Task 43', false],
-            ['Task 44', false],
-            ['Task 45', false],
-            ['Task 46', false]
-        ]
-    },
-    9: {
-        name: "My List 9",
-        tasks: [
-            ['Task 41', false],
-            ['Task 42', false],
-            ['Task 43', false],
-            ['Task 44', false],
-            ['Task 45', false],
-            ['Task 46', false]
-        ]
-    },
-    10: {
-        name: "My List 10",
-        tasks: [
-            ['Task 41', false],
-            ['Task 42', false],
-            ['Task 43', false],
-            ['Task 44', false],
-            ['Task 45', false],
-            ['Task 46', false]
-        ]
-    },
-    11: {
-        name: "My List 11",
-        tasks: [
-            ['Task 41', false],
-            ['Task 42', false],
-            ['Task 43', false],
-            ['Task 44', false],
-            ['Task 45', false],
-            ['Task 46', false]
-        ]
-    },
-    12: {
-        name: "My List 12",
-        tasks: [
-            ['Task 41', false],
-            ['Task 42', false],
-            ['Task 43', false],
-            ['Task 44', false],
-            ['Task 45', false],
-            ['Task 46', false]
-        ]
-    },
-    13: {
-        name: "My List 13",
-        tasks: [
-            ['Task 41', false],
-            ['Task 42', false],
-            ['Task 43', false],
-            ['Task 44', false],
-            ['Task 45', false],
-            ['Task 46', false]
-        ]
-    },
-    14: {
-        name: "My List 14",
-        tasks: [
-            ['Task 41', false],
-            ['Task 42', false],
-            ['Task 43', false],
-            ['Task 44', false],
-            ['Task 45', false],
-            ['Task 46', false]
-        ]
-    },
-    15: {
-        name: "My List 15",
-        tasks: [
-            ['Task 41', false],
-            ['Task 42', false],
-            ['Task 43', false],
-            ['Task 44', false],
-            ['Task 45', false],
-            ['Task 46', false]
-        ]
-    },
-    16: {
-        name: "My List 16",
-        tasks: [
-            ['Task 41', false],
-            ['Task 42', false],
-            ['Task 43', false],
-            ['Task 44', false],
-            ['Task 45', false],
-            ['Task 46', false]
-        ]
-    },
-    17: {
-        name: "My List 17",
-        tasks: [
-            ['Task 41', false],
-            ['Task 42', false],
-            ['Task 43', false],
-            ['Task 44', false],
-            ['Task 45', false],
-            ['Task 46', false]
-        ]
-    }
-}
-
+let lists = {}
 
 function stringToHash(string) {
 
@@ -685,3 +493,27 @@ function stringToHash(string) {
 
 // String printing in hash
 var gfg = "GeeksforGeeks"
+    // let lists = {
+    //     1: {
+    //         name: "My List 1",
+    //         tasks: [
+    //             ['Task 21', false],
+    //             ['Task 22', false],
+    //             ['Task 23', false],
+    //             ['Task 24', false],
+    //             ['Task 25', false],
+    //             ['Task 26', false]
+    //         ]
+    //     },
+    //     2: {
+    //         name: "My List 2",
+    //         tasks: [
+    //             ['Task 21', false],
+    //             ['Task 22', false],
+    //             ['Task 23', false],
+    //             ['Task 24', false],
+    //             ['Task 25', false],
+    //             ['Task 26', false]
+    //         ]
+    //     }
+    // }
