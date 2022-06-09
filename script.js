@@ -3,7 +3,8 @@ let current_user;
 let user;
 let listSrNo;
 var listsindex = 0
-let total_tasks;
+
+var UserlistName;
 var pages = {
     home: `<center><h4 class="text-justify">Welcome to to-do Lists. Sign up and get started today,<br>or Log in and pick up where you left!</h4></center>
     <div class="btn-group d-flex justify-content-center mt-3"  aria-label="Basic example"><center>
@@ -54,10 +55,10 @@ var pages = {
     listPage: `
     <form>
     <div class="mb-3">
-      <input type="text" class="form-control " id="task_name" placeholder="Enter List Name here">
+      <input type="text" class="form-control " id="task_name" placeholder="Enter List Name here" required>
     </div>
     <div class="mb-3">
-      <table id="newListTable">
+      <table id="list-table-body">
       <tr>
         <th class="srNo text-center">Sr.#</th>
         <th class="thdescription text-center">Task Description</th>
@@ -65,12 +66,13 @@ var pages = {
      </tr>
      <tr id="inputFields">
         <td class="srNo">Task#1</td>
-        <td><input type="text" class="form-control description" id="taskno0"></td>
-        <td class="status"><div class=checkbox><input type="checkbox" class="status"  id="myCheck"></div></td>
+        <td><input type="text" class="form-control description task" id='taskno0' required></td>
+        <td class="status"><input type="checkbox" class="status myCheck"  id="statusNo0" value='Done'></td>
      </tr>
       </table>
       <div class=" mt-2" role="group">
         <button type="button" class="btn btn-success btn-lg"  id="btnsave" onclick="saveListData()">save</button>
+        <button type="button" class="btn btn-primary btn-lg " id="btnAdd" onclick="createNewTask();">Add New Task</button>
         <button type="button" class="btn btn-secondary btn-lg" onclick="dashBoard(user)">User Dashboard</button>
      </div>
     </div>
@@ -132,8 +134,7 @@ var pages = {
             </tbody>
         </table>
         <div class=" mt-2" role="group">
-        <button type="button" class="btn btn-primary btn-lg mt-3" id="btnAdd" onclick="createNewTask();">Add New Task</button>
-        <button type="button" class="btn btn-success btn-lg mt-3"  id="btnsave" onclick="saveListData()">save</button>
+        
         <button type="button" class="btn btn-secondary btn-lg mt-3" onclick="dashBoard(user)">Return to Dashboard</button>
         </div>
         `
@@ -162,8 +163,6 @@ function SignUp() {
     if (username_validation(formData) && password_validation(formData) && email_validation(formData)) {
         localStorage.setItem(`${formData.Email}`, JSON.stringify(formData));
         getPageContent('LogIn')
-    } else {
-        alert('enter right info')
     }
 
 }
@@ -312,15 +311,13 @@ function view_list(btn_id) {
     var listData = JSON.parse(localStorage.getItem(key));
     let listName = document.getElementById('listName');
     let tabelBody = document.getElementById('list-table-body');
-    listNameField = null;
-    let taskRow = null;
-
     var selected_list = listData[btn_id]
+    listNameField = // html
+        `<h1>${selected_list.name}</h1>`
+    listName.innerHTML += listNameField
     for (const list in selected_list.name) {
         var taskCount = document.getElementsByClassName("task");
         total_tasks = taskCount.length + 1;
-        listNameField = // html
-            `<h1>${selected_list.name}</h1>`
         taskRow = // html
             `
                         <tr>
@@ -331,7 +328,6 @@ function view_list(btn_id) {
                     `;
 
         tabelBody.innerHTML += taskRow
-        listName.innerHTML += listNameField
     }
 
 
@@ -421,27 +417,36 @@ function createNewList() {
 }
 
 function saveListData() {
+
     var current_userinfo = JSON.parse(localStorage.getItem(signedInUser));
     let user = document.getElementById("loggedInUser");
     user.textContent = `Signed in as ${current_userinfo.Name} `;
+    var taskCount = document.getElementsByClassName("task");
     var listName = document.getElementById('task_name').value;
-    var taskDescription = document.getElementById('taskno0').value;
-    var taskStatus = document.getElementById("myCheck").checked
-
+    var tasksArray = []
+    var id = 0;
+    for (var i = 0; i < taskCount.length; i++) {
+        var taskId = "taskno" + id
+        var checkId = "statusNo" + id
+        var taskDescription = document.getElementById(taskId).value;
+        var taskStatus = document.getElementById(checkId).checked;
+        var tasks = [taskDescription, taskStatus]
+        tasksArray.push(tasks)
+        id++
+    }
     lists[listsindex += 1] = {
         name: listName,
-        tasks: [
-            [taskDescription, taskStatus]
-        ]
+        tasks: tasksArray
     };
-
     localStorage.setItem(stringToHash(signedInUser), lists);
     localStorage.setItem(stringToHash(signedInUser), JSON.stringify(lists));
+
 
     view_list(`list-view-${listsindex}`)
 }
 
 function createNewTask() {
+
     var current_userinfo = JSON.parse(localStorage.getItem(signedInUser));
     let user = document.getElementById("loggedInUser");
     user.textContent = `Signed in as ${current_userinfo.Name} `;
@@ -451,19 +456,22 @@ function createNewTask() {
     let table = document.getElementById('list-table-body');
 
     var taskCount = document.getElementsByClassName("task");
-
+    var taskStatusCount = document.getElementsByClassName("myCheck");
+    total_tasks = taskCount.length + 1;
     let template = `
-    <tr >
+   
     <tr>
     <td class="text-center status">Task#${total_tasks}</td>
     <td class="description"><input type="text" class="form-control task" id=""></td>
-    <td class="text-center status"><input type="checkbox"></td>
+    <td class="text-center status"><input type="checkbox" class="myCheck"></td>
     </tr>`;
     table.innerHTML += template;
     for (var i = 0; i < taskCount.length; i++) {
         taskCount[i].setAttribute("id", "taskno" + i);
+        taskStatusCount[i].setAttribute("id", "statusNo" + i);
     }
     total_tasks++
+
 }
 
 function listsPage(listId = null) {
