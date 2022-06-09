@@ -178,6 +178,7 @@ function LogIn() {
         sessionStorage.setItem(signedInUser, JSON.stringify(userData))
         user = userData;
         dashBoard(userData);
+        return true;
 
     } else {
         alert("Enter right info");
@@ -426,6 +427,7 @@ function saveListData() {
     var tasksArray = []
     var id = 0;
     for (var i = 0; i < taskCount.length; i++) {
+
         var taskId = "taskno" + id
         var checkId = "statusNo" + id
         var taskDescription = document.getElementById(taskId).value;
