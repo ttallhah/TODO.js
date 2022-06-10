@@ -3,7 +3,7 @@ let current_user;
 let user;
 let listSrNo;
 var listsindex = 0
-
+let list_id;
 var UserlistName;
 var pages = {
     home: `<center><h4 class="text-justify">Welcome to to-do Lists. Sign up and get started today,<br>or Log in and pick up where you left!</h4></center>
@@ -134,7 +134,7 @@ var pages = {
             </tbody>
         </table>
         <div class=" mt-2" role="group">
-        <button type="button" class="btn btn-success btn-lg"  id="btnsave" onclick="saveListData()">save</button>
+        <button type="button" class="btn btn-success btn-lg"  id="newTaskBtn" onclick="saveNewListData(list_id)">save</button>
         <button type="button" class="btn btn-primary btn-lg " id="btnAdd" onclick="createNewTask();">Add New Task</button>
         <button type="button" class="btn btn-secondary btn-lg" onclick="dashBoard(user)">User Dashboard</button>
         </div>
@@ -294,7 +294,7 @@ function delete_list(btn_id) {
 
     var listData = JSON.parse(localStorage.getItem(key));
     delete listData[btn_id]
-    console.log(listData)
+
 
     localStorage.removeItem(key);
 
@@ -305,7 +305,9 @@ function delete_list(btn_id) {
 }
 
 function view_list(btn_id) {
+
     getPageContent('viewList');
+    document.getElementById("newTaskBtn").style.display = "none"
     var key = stringToHash(signedInUser)
     var list_id = btn_id.match(/(\d+)/);
     btn_id = (list_id[0])
@@ -344,13 +346,12 @@ function view_list(btn_id) {
             if (checkboxVal == true) {
                 checkbox = `< input type ="checkbox">`
                 checkStatus.setAttribute("checked", true)
+            } else {
+                checkbox = `< input type ="checkbox">`
+                checkStatus.setAttribute("checked", false)
             }
         }
-
-
     }
-
-
 }
 
 function AccountSettings() {
@@ -442,16 +443,14 @@ function saveListData() {
     var taskCount = document.getElementsByClassName("task");
     var listName = document.getElementById('task_name').value;
     var tasksArray = []
-        // var id = 0;
     for (var i = 0; i < taskCount.length; i++) {
         var taskId = "taskno" + i
         var checkId = "statusNo" + i
-        console.log(taskId)
+
         var taskDescription = document.getElementById(taskId).value;
         var taskStatus = document.getElementById(checkId).checked;
         var tasks = [taskDescription, taskStatus]
         tasksArray.push(tasks)
-            // id++
     }
     lists[listsindex += 1] = {
         name: listName,
@@ -459,13 +458,12 @@ function saveListData() {
     };
     localStorage.setItem(stringToHash(signedInUser), lists);
     localStorage.setItem(stringToHash(signedInUser), JSON.stringify(lists));
-
-
+    list_id = `list-view-${listsindex}`;
     view_list(`list-view-${listsindex}`)
 }
 
 function createNewTask() {
-
+    document.getElementById("newTaskBtn").style.display = ""
     var current_userinfo = JSON.parse(localStorage.getItem(signedInUser));
     let user = document.getElementById("loggedInUser");
     user.textContent = `Signed in as ${current_userinfo.Name} `;
@@ -491,6 +489,49 @@ function createNewTask() {
     }
     total_tasks++
 
+}
+
+function saveNewListData(btn_id) {
+
+    var current_userinfo = JSON.parse(localStorage.getItem(signedInUser));
+    let user = document.getElementById("loggedInUser");
+    user.textContent = `Signed in as ${current_userinfo.Name} `;
+
+    var key = stringToHash(signedInUser)
+    var list_id = btn_id.match(/(\d+)/);
+    btn_id = (list_id[0])
+    var listData = JSON.parse(localStorage.getItem(key));
+    var listName = listData[btn_id].name
+    var taskCount = document.getElementsByClassName("task");
+    var tasksArray = listData[btn_id].tasks
+    delete listData[btn_id]
+
+    localStorage.removeItem(key);
+    // localStorage.setItem(key, JSON.stringify(listData))
+    listsindex = 0
+    for (var i = 0; i < taskCount.length; i++) {
+        var id = taskCount.length - 1;
+
+        var taskId = "taskno" + id
+        var checkId = "statusNo" + id
+        var taskDescription = document.getElementById(taskId).value;
+        var taskStatus = document.getElementById(checkId).checked;
+
+
+        id++
+    }
+    var tasks = [taskDescription, taskStatus]
+    tasksArray.push(tasks)
+
+    lists[listsindex += 1] = {
+        name: listName,
+        tasks: tasksArray,
+    };
+    localStorage.setItem(stringToHash(signedInUser), lists);
+    localStorage.setItem(stringToHash(signedInUser), JSON.stringify(lists));
+    list_id = `list-view-${listsindex}`;
+
+    view_list(`list-view-${listsindex}`)
 }
 
 function listsPage(listId = null) {
