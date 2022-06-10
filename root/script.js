@@ -67,7 +67,7 @@ var pages = {
      <tr id="inputFields">
         <td class="srNo">Task#1</td>
         <td><input type="text" class="form-control description task" id='taskno0' required></td>
-        <td class="status"><input type="checkbox" class="status myCheck"  id="statusNo0" value='Done'></td>
+        <td><input type="checkbox" class="myCheck"  id="statusNo0" value='Done'></td>
      </tr>
       </table>
       <div class=" mt-2" role="group">
@@ -134,8 +134,9 @@ var pages = {
             </tbody>
         </table>
         <div class=" mt-2" role="group">
-        
-        <button type="button" class="btn btn-secondary btn-lg mt-3" onclick="dashBoard(user)">Return to Dashboard</button>
+        <button type="button" class="btn btn-success btn-lg"  id="btnsave" onclick="saveListData()">save</button>
+        <button type="button" class="btn btn-primary btn-lg " id="btnAdd" onclick="createNewTask();">Add New Task</button>
+        <button type="button" class="btn btn-secondary btn-lg" onclick="dashBoard(user)">User Dashboard</button>
         </div>
         `
 };
@@ -311,11 +312,14 @@ function view_list(btn_id) {
     var listData = JSON.parse(localStorage.getItem(key));
     let listName = document.getElementById('listName');
     let tabelBody = document.getElementById('list-table-body');
+
     var selected_list = listData[btn_id]
     listNameField = // html
         `<h1>${selected_list.name}</h1>`
     listName.innerHTML += listNameField
     for (const list in selected_list.name) {
+
+        var checkboxVal = selected_list.tasks[list][1]
         var taskCount = document.getElementsByClassName("task");
         total_tasks = taskCount.length + 1;
         taskRow = // html
@@ -323,11 +327,27 @@ function view_list(btn_id) {
                         <tr>
                             <td class="text-center status" >Task#${total_tasks}</td>
                             <td class="task">${selected_list.tasks[list][0]}</td>
-                            <td class="text-center status">${selected_list.tasks[list][1]}</td>
+                            <td class="text-center status"><input type="checkbox" id="statusNo0" class='mycheck'></input></td>
                         </tr>
                     `;
 
+
+        // taskStatusCount[i].setAttribute("id", "statusNo" + i)
         tabelBody.innerHTML += taskRow
+        var taskStatusCount = document.getElementsByClassName("myCheck");
+        for (var i = 0; i < taskCount.length; i++) {
+            taskCount[i].setAttribute("id", "taskno" + i);
+            taskStatusCount[i].setAttribute("id", "statusNo" + i);
+
+            var checkId = "statusNo" + i
+            var checkStatus = document.getElementById(checkId)
+            if (checkboxVal == true) {
+                checkbox = `< input type ="checkbox">`
+                checkStatus.setAttribute("checked", true)
+            }
+        }
+
+
     }
 
 
@@ -352,9 +372,7 @@ function updateInfo() {
         Password: document.getElementById('NewPassword').value
     }
     if (updated_username_validation(updatedData) && updated_password_validation(updatedData) && updated_email_validation(updatedData)) {
-        //functionality to delete User's previous info
-        sessionStorage.removeItem(signedInUser);
-        sessionStorage.setItem(`${updatedData.Email}`, JSON.stringify(updatedData));
+        localStorage.setItem(`${updatedData.Email}`, JSON.stringify(updatedData));
         signedInUser = document.getElementById("updateEmail").value;
     } else {
         alert('enter right info')
@@ -424,19 +442,20 @@ function saveListData() {
     var taskCount = document.getElementsByClassName("task");
     var listName = document.getElementById('task_name').value;
     var tasksArray = []
-    var id = 0;
+        // var id = 0;
     for (var i = 0; i < taskCount.length; i++) {
-        var taskId = "taskno" + id
-        var checkId = "statusNo" + id
+        var taskId = "taskno" + i
+        var checkId = "statusNo" + i
+        console.log(taskId)
         var taskDescription = document.getElementById(taskId).value;
         var taskStatus = document.getElementById(checkId).checked;
         var tasks = [taskDescription, taskStatus]
         tasksArray.push(tasks)
-        id++
+            // id++
     }
     lists[listsindex += 1] = {
         name: listName,
-        tasks: tasksArray
+        tasks: tasksArray,
     };
     localStorage.setItem(stringToHash(signedInUser), lists);
     localStorage.setItem(stringToHash(signedInUser), JSON.stringify(lists));
