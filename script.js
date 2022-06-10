@@ -11,7 +11,7 @@ var pages = {
     <button type="button" class="btn btn-secondary" onclick="getPageContent('SignUp')">SignUp</button>
     <button type="button" class="btn btn-secondary" onclick="getPageContent('LogIn')">LogIn</button></center>
   </div>`,
-    LogIn: `<form style='border:1px solid black; background-color:rgb(106,133,255); padding:10px;'>
+    LogIn: `<form style='border:1px solid black; background-color:rgb(106,133,255); padding:10px;' autocomplete="on">
     <div class="mb-3">
       <label for="exampleInputEmail1" class="form-label">Email address</label>
       <input type="email" class="form-control" id="email">
@@ -26,7 +26,7 @@ var pages = {
     SignUp: `<div class="mb-4 mt-4">
     <h3>Create Your Account</h3>
 </div>
-     <form style='border:1px solid black; background-color:rgb(165, 178, 198); padding:10px;'>
+     <form style='border:1px solid black; background-color:rgb(165, 178, 198); padding:10px;' autocomplete="on">
     <div class="mb-3">
         <label for="Name" class="form-label">First Name</label>
         <input type="text" class="form-control" id="FirstName" required>
@@ -53,7 +53,7 @@ var pages = {
 </form>`,
 
     listPage: `
-    <form>
+    <form autocomplete="on">
     <div class="mb-3">
       <input type="text" class="form-control " id="task_name" placeholder="Enter List Name here" required>
     </div>
@@ -87,7 +87,7 @@ var pages = {
     <div class="mb-2">
         <h6 style="color:blue;">Update Your Account Settings Here!</h6>
     </div>
-    <form style="border:1px solid black; padding:8px; background-color:rgb(162,217,255);">
+    <form style="border:1px solid black; padding:8px; background-color:rgb(162,217,255);" autocomplete="on">
     <div class="mb-2">
         <label for="Name" class="form-label">First Name</label>
         <input type="text" class="form-control" id="updateFirstName" required>
@@ -305,9 +305,7 @@ function delete_list(btn_id) {
 }
 
 function view_list(btn_id) {
-
     getPageContent('viewList');
-    document.getElementById("newTaskBtn").style.display = "none"
     var key = stringToHash(signedInUser)
     var list_id = btn_id.match(/(\d+)/);
     btn_id = (list_id[0])
@@ -346,12 +344,13 @@ function view_list(btn_id) {
             if (checkboxVal == true) {
                 checkbox = `< input type ="checkbox">`
                 checkStatus.setAttribute("checked", true)
-            } else {
-                checkbox = `< input type ="checkbox">`
-                checkStatus.setAttribute("checked", false)
             }
         }
+
+
     }
+
+
 }
 
 function AccountSettings() {
@@ -463,7 +462,7 @@ function saveListData() {
 }
 
 function createNewTask() {
-    document.getElementById("newTaskBtn").style.display = ""
+
     var current_userinfo = JSON.parse(localStorage.getItem(signedInUser));
     let user = document.getElementById("loggedInUser");
     user.textContent = `Signed in as ${current_userinfo.Name} `;
@@ -479,7 +478,7 @@ function createNewTask() {
    
     <tr>
     <td class="text-center status">Task#${total_tasks}</td>
-    <td class="description"><input type="text" class="form-control task" id=""></td>
+    <td class="description"><input type="text" class="form-control task" id="" autocomplete="on"></td>
     <td class="text-center status"><input type="checkbox" class="myCheck"></td>
     </tr>`;
     table.innerHTML += template;
@@ -492,11 +491,10 @@ function createNewTask() {
 }
 
 function saveNewListData(btn_id) {
-
+    document.getElementById("newTaskBtn").style.display = "none"
     var current_userinfo = JSON.parse(localStorage.getItem(signedInUser));
     let user = document.getElementById("loggedInUser");
     user.textContent = `Signed in as ${current_userinfo.Name} `;
-
     var key = stringToHash(signedInUser)
     var list_id = btn_id.match(/(\d+)/);
     btn_id = (list_id[0])
@@ -505,13 +503,10 @@ function saveNewListData(btn_id) {
     var taskCount = document.getElementsByClassName("task");
     var tasksArray = listData[btn_id].tasks
     delete listData[btn_id]
-
-    localStorage.removeItem(key);
-    // localStorage.setItem(key, JSON.stringify(listData))
     listsindex = 0
     for (var i = 0; i < taskCount.length; i++) {
         var id = taskCount.length - 1;
-
+        console.log(id)
         var taskId = "taskno" + id
         var checkId = "statusNo" + id
         var taskDescription = document.getElementById(taskId).value;
