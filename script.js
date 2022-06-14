@@ -1,578 +1,399 @@
-let signedInUser;
-let current_user;
-let user;
-let listSrNo;
-var listsindex = 0
-let list_id;
-var UserlistName;
-var pages = {
-    home: `<center><h4 class="text-justify">Welcome to to-do Lists. Sign up and get started today,<br>or Log in and pick up where you left!</h4></center>
-    <div class="btn-group d-flex justify-content-center mt-3"  aria-label="Basic example"><center>
-    <button type="button" class="btn btn-secondary" onclick="getPageContent('SignUp')">SignUp</button>
-    <button type="button" class="btn btn-secondary" onclick="getPageContent('LogIn')">LogIn</button></center>
-  </div>`,
-    LogIn: `<form style='border:1px solid black; background-color:rgb(106,133,255); padding:10px;' autocomplete="on">
-    <div class="mb-3">
-      <label for="exampleInputEmail1" class="form-label">Email address</label>
-      <input type="email" class="form-control" id="email">
-      <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
-    </div>
-    <div class="mb-3">
-      <label for="exampleInputPassword1" class="form-label">Password</label>
-      <input type="password" class="form-control" id="password">
-    </div>
-    <button type="submit" class="btn btn-primary" onclick="event.preventDefault();LogIn()">Submit</button>
-  </form>`,
-    SignUp: `<div class="mb-4 mt-4">
-    <h3>Create Your Account</h3>
-</div>
-     <form style='border:1px solid black; background-color:rgb(165, 178, 198); padding:10px;' autocomplete="on">
-    <div class="mb-3">
-        <label for="Name" class="form-label">First Name</label>
-        <input type="text" class="form-control" id="FirstName" required>
-    </div>
-    <div class="mb-3">
-        <label for="LastName" class="form-label">Last Name</label>
-        <input type="text" class="form-control" id="LastName" required>
-    </div>
-    <div class="mb-3">
-        <label for="Email" class="form-label">Email address</label>
-        <input type="email" class="form-control" id="Email" required>
-    </div>
-    <div class="mb-3">
-        <label for="Password" class="form-label" >Password</label>
-        <input type="password" class="form-control" id="Password" minlength="8"  required>
-    </div>
-    <div class="mb-3">
-        <label for="ConfirmPassword" class="form-label">Confirm Password</label>
-        <input type="password" class="form-control" id="ConfirmPassword" minlength="8" required><br>
-        <p id="message"></p>
-    </div>
-    
-    <button type="button" class="btn btn-primary" onclick="SignUp()">Sign Up</button>
-</form>`,
+let toDoLists = null;
+document.addEventListener('DOMContentLoaded', () => {
+  let container = document.getElementById('container');
+  let headerLink = document.getElementById('to-do-lists-link');
+  toDoLists = new ToDoLists(container, pages);
+  headerLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    toDoLists.showHomePage();
+  });
+  toDoLists.getCurrentUser();
+  toDoLists.nullifyCurrentUser();
+  toDoLists.showHomePage();
+});
 
-    listPage: `
-    <form autocomplete="on">
-    <div class="mb-3">
-      <input type="text" class="form-control " id="task_name" placeholder="Enter List Name here" required>
-    </div>
-    <div class="mb-3">
-      <table id="list-table-body">
-      <tr>
-        <th class="srNo text-center">Sr.#</th>
-        <th class="thdescription text-center">Task Description</th>
-        <th class="status text-center">Status</th>
-     </tr>
-     <tr id="inputFields">
-        <td class="srNo">Task#1</td>
-        <td><input type="text" class="form-control description task" id='taskno0' required></td>
-        <td><input type="checkbox" class="myCheck"  id="statusNo0" value='Done'></td>
-     </tr>
-      </table>
-      <div class=" mt-2" role="group">
-        <button type="button" class="btn btn-success btn-lg"  id="btnsave" onclick="saveListData()">save</button>
-        <button type="button" class="btn btn-primary btn-lg " id="btnAdd" onclick="createNewTask();">Add New Task</button>
-        <button type="button" class="btn btn-secondary btn-lg" onclick="dashBoard(user)">User Dashboard</button>
-     </div>
-    </div>
-    
-  </form>    
-    `,
+class ToDoLists {
+  constructor(container, pages) {
+    this.container = container;
+    this.pages = pages;
+    this.currentUser = null;
+    this.currentPage = null;
+    this.flashNotice = document.querySelector('#flash-notice #notice-message');
+    this.flashNoticeTimeOut = null;
+    this.userLists = {};
+    this.currentTasksCount = null;
+  }
 
-    AccountSettings: `
-    <div class="mb-2">
-        <h2 id='Edit_Info'></h2>
-    </div>
-    <div class="mb-2">
-        <h6 style="color:blue;">Update Your Account Settings Here!</h6>
-    </div>
-    <form style="border:1px solid black; padding:8px; background-color:rgb(162,217,255);" autocomplete="on">
-    <div class="mb-2">
-        <label for="Name" class="form-label">First Name</label>
-        <input type="text" class="form-control" id="updateFirstName" required>
-    </div>
-    <div class="mb-2">
-        <label for="LastName" class="form-label">Last Name</label>
-        <input type="text" class="form-control" id="updateLastName" required>
-    </div>
-    <div class="mb-2">
-        <label for="Email" class="form-label">Email address</label>
-        <input type="email" class="form-control" id="updateEmail" required>
-    </div>
-    <div class="mb-2">
-        <label for="NewPassword" class="form-label" >New Password</label>
-        <input type="text" class="form-control" id="NewPassword" minlength="8"  required>
-    </div>
-    <div class="mb-2">
-        <label for="currentPassword" class="form-label">current Password</label>
-        <input type="text" class="form-control" id="currentPassword" minlength="8" required>
-    </div>
-    <button type="button" class="btn btn-primary" onclick=" updateInfo()">Update Info</button>
-</form> `,
-    emptyDashboard: //html 
-        `<div class="border-blue" id="empty-dashboard">You currently don't have any lists. Create one now!</div>`,
-    dashboardTable: //html
-        `<table id="dashboard-table" class="">
-            <tr>
-                <th id="serial" class='text-center'>Sr. #</th>
-                <th id="list-name">List Name</th>
-                <th id="actions" class='text-center'>Actions</th>
-            </tr>
-            <tbody id="dashboard-table-body">
-            </tbody>
-        </table>`,
-    viewList: //html
-        `<h1 id='listName'></h1>
-        <table id="list-table" class="">
-            <tr>
-                <th id="serial">Sr. #</th>
-                <th id="description">Description</th>
-                <th id="actions">Status</th>
-            </tr>
-            <tbody id="list-table-body">
-            </tbody>
-        </table>
-        <div class=" mt-2" role="group">
-        <button type="button" class="btn btn-success btn-lg"  id="newTaskBtn" onclick="saveNewListData(list_id)">save</button>
-        <button type="button" class="btn btn-primary btn-lg " id="btnAdd" onclick="createNewTask();">Add New Task</button>
-        <button type="button" class="btn btn-secondary btn-lg" onclick="dashBoard(user)">User Dashboard</button>
-        </div>
-        `
-};
+  getCurrentUser() {
+    this.currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+  }
 
-function getPageContent(page) {
-    var contentToReturn;
-    contentToReturn = pages[page]
-    document.getElementById('content').innerHTML = contentToReturn;
-}
+  /* TODO: for debugging purspose. Please delete this method afterwards */
+  nullifyCurrentUser() {
+    this.currentUser = null;
+  }
 
-function home() {
-    document.getElementById('mininav').style.display = 'none';
-    getPageContent('home');
-}
-// Function For SignUp
-function SignUp() {
-    document.getElementById('mininav').style.display = 'none';
-    let formData = {
-        Name: document.getElementById('FirstName').value,
-        LastName: document.getElementById('LastName').value,
-        Email: document.getElementById('Email').value,
-        Password: document.getElementById('Password').value
-    }
 
-    if (username_validation(formData) && password_validation(formData) && email_validation(formData)) {
-        localStorage.setItem(`${formData.Email}`, JSON.stringify(formData));
-        getPageContent('LogIn')
-    }
+  showHomePage() {
+    if (this.currentUser != undefined || this.currentUser != null) {
+      this.currentPage = 'homeLoggedIn';
+      this.container.innerHTML = this.pages.homeLoggedIn.replace('{{ userFirstName }}', this.currentUser.firstName);
 
-}
-// Function For login
-function LogIn() {
-
-    document.getElementById('mininav').style.display = 'none';
-    var email = document.getElementById("email").value;
-    var userData = JSON.parse(localStorage.getItem(email));
-    var password = document.getElementById("password").value;
-    if (email == userData.Email && password == userData.Password) {
-        signedInUser = document.getElementById("email").value;
-        sessionStorage.setItem(signedInUser, JSON.stringify(userData))
-        user = userData;
-        dashBoard(userData);
-
-    } else {
-        alert("Enter right info");
-    }
-
-}
-// Function For validations applied on Name
-function username_validation(data) {
-    var validate_name = /^[A-Za-z]+$/;
-    if (data.Name.match(validate_name) && data.LastName.match(validate_name)) {
-        document.querySelector('#FirstName').classList.add("success");
-        document.querySelector('#LastName').classList.add("success");
-        return true;
-    } else {
-        document.querySelector('#FirstName').classList.add("failed");
-        document.querySelector('#LastName').classList.add("failed");
-        return false;
-    }
-}
-// Function For validations applied on password
-function password_validation(data) {
-    var validate_pass = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,10}$/;
-    let ConfirmPassword = document.getElementById("ConfirmPassword").value;
-    let message = document.getElementById("message");
-    if (data.Password.match(validate_pass)) {
-        document.querySelector('#Password').classList.add("success");
-        if (data.Password == ConfirmPassword) {
-            document.getElementById("ConfirmPassword").classList.add("success");
-            message.textContent = "Passwords match";
-            message.style.backgroundColor = "#1dcd59";
-            return true;
-        } else {
-            message.textContent = "Password don't match";
-            message.style.backgroundColor = "#ff4d4d";
-            return false;
-        }
-    } else {
-        message.textContent = "Password Patern incorrect";
-        message.style.backgroundColor = "#ff4d4d";
-
-    }
-}
-// Function For validations applied on password
-function email_validation(data) {
-    let validateEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-    if (data.Email.match(validateEmail)) {
-        document.getElementById("Email").classList.add("success");
-        return true;
-    } else {
-        document.querySelector('#Email').classList.add("failed");
-        return false;
-    }
-}
-
-// Function For All the operations on dashboard
-function dashBoard(currentUser) {
-    var current_userinfo = JSON.parse(localStorage.getItem(signedInUser));
-    let user = document.getElementById("loggedInUser");
-    user.textContent = `Signed in as ${current_userinfo.Name} `;
-    document.getElementById('mininav').style.display = '';
-    let content = document.getElementById('content');
-    content.innerHTML = '   '
-
-    let header = document.createElement('h1')
-    header.classList = 'text-center mb-4'
-    header.innerText = `${currentUser.Name} ${currentUser.LastName}'s Lists`;
-
-    content.appendChild(header)
-
-    let createNewListButton = document.createElement('button');
-    createNewListButton.id = 'create-new-list-button';
-    createNewListButton.classList = 'btn btn-primary mt-2';
-    createNewListButton.innerText = 'Create New List';
-    createNewListButton.addEventListener('click', (e) => {
+      let dashBoardBtn = document.getElementById('home-dashboard')
+      dashBoardBtn.addEventListener('click', (e) => {
         e.preventDefault();
-        listsPage(currentUser.Email);
-        createNewList(currentUser.Email);
+        this.showDashBoardPage();
+      });
+    } else {
+      this.currentPage = 'home';
+      this.container.innerHTML = this.pages.home;
+      
+      let signupBtn = document.getElementById('home-signup');
+      signupBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.showSignupPage();
+      });
+
+      let loginBtn = document.getElementById('home-login');
+      loginBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.showLoginPage();
+      });
+    }
+  }
+
+  showSignupPage() {
+    this.currentPage = 'signup';
+    this.container.innerHTML = this.pages.signup;
+
+    let signupForm = document.getElementById('signup-form');
+    signupForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      this.signup();
     })
-    listsData = JSON.parse(localStorage.getItem(stringToHash(currentUser.Email)));
-    if (listsData == null || Object.keys(listsData).length == 0) {
-        content.innerHTML += (pages.emptyDashboard)
-    } else {
-        content.innerHTML += pages.dashboardTable;
-        let tabelBody = document.getElementById('dashboard-table-body');
-        let listRow = null;
-        for (const list in listsData) {
-            listRow = // html
-                `<div >
-                    <tr>
-                        <td class="text-center serial-number">List ${list}</td>
-                        <td>${listsData[list].name}</td>
-                        <td class='actions-div'>
-                            <div id="actions-div">
-                                <button class="btn btn-success" id="list-view-${list}" onclick='view_list(this.id)'>View</button>
-                                <button class="btn btn-danger" id="list-delete-${list}" onclick='delete_list(this.id)'>Delete</button>
-                            </div>
-                        </td>
-                    </tr>
-                </div>`;
-            tabelBody.innerHTML += listRow
+  }
 
-        }
-    }
-    content.appendChild(createNewListButton)
-}
-
-
-function delete_list(btn_id) {
-
-    var key = stringToHash(signedInUser)
-    var list_id = btn_id.match(/(\d+)/);
-    btn_id = (list_id[0])
-
-    var listData = JSON.parse(localStorage.getItem(key));
-    delete listData[btn_id]
-
-
-    localStorage.removeItem(key);
-
-
-    localStorage.setItem(key, JSON.stringify(listData))
-
-    dashBoard(user);
-}
-
-function view_list(btn_id) {
-    getPageContent('viewList');
-    var key = stringToHash(signedInUser)
-    var list_id = btn_id.match(/(\d+)/);
-    btn_id = (list_id[0])
-    var listData = JSON.parse(localStorage.getItem(key));
-    let listName = document.getElementById('listName');
-    let tabelBody = document.getElementById('list-table-body');
-
-    var selected_list = listData[btn_id]
-    listNameField = // html
-        `<h1>${selected_list.name}</h1>`
-    listName.innerHTML += listNameField
-    for (const list in selected_list.name) {
-
-        var checkboxVal = selected_list.tasks[list][1]
-        var taskCount = document.getElementsByClassName("task");
-        total_tasks = taskCount.length + 1;
-        taskRow = // html
-            `
-                        <tr>
-                            <td class="text-center status" >Task#${total_tasks}</td>
-                            <td class="task">${selected_list.tasks[list][0]}</td>
-                            <td class="text-center status"><input type="checkbox" id="statusNo0" class='mycheck'></input></td>
-                        </tr>
-                    `;
-
-
-        // taskStatusCount[i].setAttribute("id", "statusNo" + i)
-        tabelBody.innerHTML += taskRow
-        var taskStatusCount = document.getElementsByClassName("myCheck");
-        for (var i = 0; i < taskCount.length; i++) {
-            taskCount[i].setAttribute("id", "taskno" + i);
-            taskStatusCount[i].setAttribute("id", "statusNo" + i);
-
-            var checkId = "statusNo" + i
-            var checkStatus = document.getElementById(checkId)
-            if (checkboxVal == true) {
-                checkbox = `< input type ="checkbox">`
-                checkStatus.setAttribute("checked", true)
-            }
-        }
-
-
-    }
-
-
-}
-
-function AccountSettings() {
-    document.getElementById('mininav').style.display = '';
-    getPageContent('AccountSettings')
-    var current_userinfo = JSON.parse(localStorage.getItem(signedInUser));
-    let user = document.getElementById("loggedInUser");
-    user.textContent = `Signed in as ${current_userinfo.Name} `;
-    let message = document.getElementById("Edit_Info");
-    message.textContent = `${current_userinfo.Name}'s Account Settings`;
-}
-
-function updateInfo() {
-    //functionality to update User's info
-    let updatedData = {
-        Name: document.getElementById('updateFirstName').value,
-        LastName: document.getElementById('updateLastName').value,
-        Email: document.getElementById('updateEmail').value,
-        Password: document.getElementById('NewPassword').value
-    }
-    if (updated_username_validation(updatedData) && updated_password_validation(updatedData) && updated_email_validation(updatedData)) {
-        localStorage.setItem(`${updatedData.Email}`, JSON.stringify(updatedData));
-        signedInUser = document.getElementById("updateEmail").value;
-    } else {
-        alert('enter right info')
-    }
-}
-
-function updated_username_validation(data) {
-    var validate_name = /^[A-Za-z]+$/;
-    console.log(data.Name);
-    if (data.Name.match(validate_name) && data.LastName.match(validate_name)) {
-        document.querySelector('#updateFirstName').classList.add("success");
-        document.querySelector('#updateLastName').classList.add("success");
-        return true;
-    } else {
-        document.querySelector('#updateFirstName').classList.add("failed");
-        document.querySelector('#updateLastName').classList.add("failed");
-        return false;
-    }
-}
-
-function updated_password_validation(data) {
-    var validate_pass = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,10}$/;
-
-    if (data.Password.match(validate_pass)) {
-        document.querySelector('#NewPassword').classList.add("success");
-        return true;
-    } else {
-        message.textContent = "Password Patern incorrect";
-        message.style.backgroundColor = "#ff4d4d";
-        return false;
-    }
-}
-
-function updated_email_validation(data) {
-    let validateEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-
-    if (data.Email.match(validateEmail)) {
-        document.getElementById("updateEmail").classList.add("success");
-        return true;
-    } else {
-        document.querySelector('#updateEmail').classList.add("failed");
-        return false;
-    }
-}
-// Function For logOut
-function LogOut() {
-    sessionStorage.removeItem(signedInUser);
-    getPageContent('home');
-
-}
-
-function createNewList() {
-    var current_userinfo = JSON.parse(localStorage.getItem(signedInUser));
-    let user = document.getElementById("loggedInUser");
-    user.textContent = `Signed in as ${current_userinfo.Name} `;
-    document.getElementById('mininav').style.display = '';
-    getPageContent('listPage');
-
-
-}
-
-function saveListData() {
-
-    var current_userinfo = JSON.parse(localStorage.getItem(signedInUser));
-    let user = document.getElementById("loggedInUser");
-    user.textContent = `Signed in as ${current_userinfo.Name} `;
-    var taskCount = document.getElementsByClassName("task");
-    var listName = document.getElementById('task_name').value;
-    var tasksArray = []
-    for (var i = 0; i < taskCount.length; i++) {
-        var taskId = "taskno" + i
-        var checkId = "statusNo" + i
-
-        var taskDescription = document.getElementById(taskId).value;
-        var taskStatus = document.getElementById(checkId).checked;
-        var tasks = [taskDescription, taskStatus]
-        tasksArray.push(tasks)
-    }
-    lists[listsindex += 1] = {
-        name: listName,
-        tasks: tasksArray,
+  signup() {
+    let formData = {
+      firstName: document.getElementById('first-name'),
+      lastName: document.getElementById('last-name'),
+      email: document.getElementById('email'),
+      password: document.getElementById('password'),
+      confirmPassword: document.getElementById('confirm-password')
     };
-    localStorage.setItem(stringToHash(signedInUser), lists);
-    localStorage.setItem(stringToHash(signedInUser), JSON.stringify(lists));
-    list_id = `list-view-${listsindex}`;
-    view_list(`list-view-${listsindex}`)
-}
 
-function createNewTask() {
-
-    var current_userinfo = JSON.parse(localStorage.getItem(signedInUser));
-    let user = document.getElementById("loggedInUser");
-    user.textContent = `Signed in as ${current_userinfo.Name} `;
-    document.getElementById('mininav').style.display = '';
-
-
-    let table = document.getElementById('list-table-body');
-
-    var taskCount = document.getElementsByClassName("task");
-    var taskStatusCount = document.getElementsByClassName("myCheck");
-    total_tasks = taskCount.length + 1;
-    let template = `
-   
-    <tr>
-    <td class="text-center status">Task#${total_tasks}</td>
-    <td class="description"><input type="text" class="form-control task" id="" autocomplete="on"></td>
-    <td class="text-center status"><input type="checkbox" class="myCheck"></td>
-    </tr>`;
-    table.innerHTML += template;
-    for (var i = 0; i < taskCount.length; i++) {
-        taskCount[i].setAttribute("id", "taskno" + i);
-        taskStatusCount[i].setAttribute("id", "statusNo" + i);
+    if (this.validateForm(formData)) {
+      localStorage.setItem(formData.email.value, JSON.stringify({ firstName: formData.firstName.value, lastName: formData.lastName.value, email: formData.email.value, password: sha256(formData.password.value) }))
+      localStorage.setItem(sha256(formData.email.value), JSON.stringify({}))
+      this.showFlashNotice('success', 'User registration successful');
+      this.showLoginPage();
     }
-    total_tasks++
+  }
 
-}
+  validateForm(data) {
+    let firstNameStatus = this.validateName(data.firstName);
+    let lastNameStatus = this.validateName(data.lastName);
+    let emailStatus = this.validateEmail(data.email);
+    let passwordStatus = this.validatePassword(data.password, data.confirmPassword);
 
-function saveNewListData(btn_id) {
-    document.getElementById("newTaskBtn").style.display = "none"
-    var current_userinfo = JSON.parse(localStorage.getItem(signedInUser));
-    let user = document.getElementById("loggedInUser");
-    user.textContent = `Signed in as ${current_userinfo.Name} `;
-    var key = stringToHash(signedInUser)
-    var list_id = btn_id.match(/(\d+)/);
-    btn_id = (list_id[0])
-    var listData = JSON.parse(localStorage.getItem(key));
-    var listName = listData[btn_id].name
-    var taskCount = document.getElementsByClassName("task");
-    var tasksArray = listData[btn_id].tasks
-    delete listData[btn_id]
-    listsindex = 0
-    for (var i = 0; i < taskCount.length; i++) {
-        var id = taskCount.length - 1;
-        console.log(id)
-        var taskId = "taskno" + id
-        var checkId = "statusNo" + id
-        var taskDescription = document.getElementById(taskId).value;
-        var taskStatus = document.getElementById(checkId).checked;
-
-
-        id++
+    if (firstNameStatus && lastNameStatus && emailStatus && passwordStatus) {
+      return true
+    } else {
+      return false
     }
-    var tasks = [taskDescription, taskStatus]
-    tasksArray.push(tasks)
+  }
 
-    lists[listsindex += 1] = {
-        name: listName,
-        tasks: tasksArray,
+  validateName(name) {
+    let value = name.value;
+    if (value != undefined && value != '' && value != null && value.match(/\s+/) == null) {
+      if (value.match(/[A-Za-z]{2,}/) != null) {
+        document.getElementById(`${name.id}-errors`).innerText = '';
+        return true
+      } else {
+        document.getElementById(`${name.id}-errors`).innerText = 'This field name cannot be empty';
+      }
+    } else {
+      document.getElementById(`${name.id}-errors`).innerText = 'This field name cannot be empty and cannot contain spaces';
+    }
+    return false
+  }
+
+  validateEmail(email) {
+    let value = email.value;
+    if (value != undefined && value != '' && value != null && value.match(/\s+/) == null) {
+      if (value.match(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/) != null) {
+        if (localStorage.getItem(value) == null) {
+          document.getElementById(`${email.id}-errors`).innerText = '';
+          return true
+        } else {
+          document.getElementById(`${email.id}-errors`).innerHTML = 'A user with this email already exists. Pleae try another email or login <a href="javascript:void(0)" onclick="toDoLists.showLoginPage();">here</a>';
+        }
+      } else {
+        document.getElementById(`${email.id}-errors`).innerText = 'Email cannot be empty';
+      }
+    } else {
+      document.getElementById(`${email.id}-errors`).innerText = 'Email name cannot be empty and cannot contain spaces';
+    }
+    return false 
+  }
+
+  validatePassword(password, confirmPassword) {
+    let value = password.value;
+    let confirmValue = confirmPassword.value;
+    if (value != undefined && value != '' && value != null && value.match(/\s+/) == null) {
+      if (value.match(/(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[~!@#$%^&*\(\)_+=-\`<>?]).{8,}/) != null) {
+        if (value == confirmValue) {
+          document.getElementById(`${password.id}-errors`).innerText = '';
+          return true
+        } else {
+          document.getElementById(`${password.id}-errors`).innerText = 'Passwords do not match';
+        }
+      } else {
+        document.getElementById(`${password.id}-errors`).innerText = 'Password must have at least one upperaes letter, one lowercase letter, a number and a special character';
+      }
+    } else {
+      document.getElementById(`${password.id}-errors`).innerText = 'Password cannot be empty and cannot contain spaces';
+    }
+    return false  
+  }
+
+  showLoginPage() {
+    this.currentPage = 'login';
+    this.container.innerHTML = this.pages.login;
+    
+    let loginForm = document.getElementById('login-form');
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      this.login();
+    })
+  }
+
+  login() {
+    let formData = {
+      email: document.getElementById('email').value,
+      password: document.getElementById('password').value
     };
-    localStorage.setItem(stringToHash(signedInUser), lists);
-    localStorage.setItem(stringToHash(signedInUser), JSON.stringify(lists));
-    list_id = `list-view-${listsindex}`;
 
-    view_list(`list-view-${listsindex}`)
-}
-
-function listsPage(listId = null) {
-    table = document.createElement('table')
-    table.classList = 'list'
-    table.id = listId != null ? `list-${listId}` : 'new-list'
-    document.getElementById('content');
-
-}
-let lists = {}
-
-function stringToHash(string) {
-
-    var hash = 0;
-
-    if (string.length == 0) return hash;
-
-    for (i = 0; i < string.length; i++) {
-        char = string.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
-        hash = hash & hash;
+    if (localStorage.getItem(formData.email) != null) {
+      let user = JSON.parse(localStorage.getItem(formData.email));
+      if (sha256(formData.password) == user.password) {
+        this.currentUser = user;
+        this.userLists = JSON.parse(localStorage.getItem(sha256(this.currentUser.email)));
+        this.showFlashNotice('success', 'You have logged in successfully');
+        this.showDashBoardPage();
+      } else {
+        this.showFlashNotice('danger', 'Incorrect email/password combination');
+      }
+    } else {
+        this.showFlashNotice('warning', 'This user does not exist');
+    }
+  }
+  
+  showDashBoardPage() {
+    console.log(Object.keys(this.userLists).length)
+    if (Object.keys(this.userLists).length > 0) {
+      this.currentPage = 'dashboardPopulated';
+      this.container.innerHTML = this.pages.dashboardPopulated.replace('{{ userFirstName }}', this.currentUser.firstName);
+      this.createListsTable('table#dashboard-table tbody');
+    } else {
+      this.currentPage = 'dashboardEmpty';
+      this.container.innerHTML = this.pages.dashboardEmpty.replace('{{ userFirstName }}', this.currentUser.firstName);
     }
 
-    return hash;
+    // view list buttons
+    document.getElementById('dashboard-create-new-list').addEventListener('click', (e) => {
+      e.preventDefault();
+      this.showListPage();
+    })
+  }
+
+  createListsTable(container) {
+    let row = ''
+    for (let list in this.userLists) {
+      row += // html
+        `<tr>
+          <td class="text-center">
+            List ${list}
+          </td>
+          <td>
+            ${ this.userLists[list].name}
+          </td>
+          <td class="text-center">
+            <a id="list-${list}-view" class="btn btn-success list-btn" href="javascript:void(0)" data-id="${list}" data-action="view">View</a>
+            <a id="list-${list}-delete" class="btn btn-danger list-btn" href="javascript:void(0)" data-id="${list}" data-action="delete" data-confirm="Are you sure?">Delete</a>
+          </td>
+        </tr>`
+    }
+    document.querySelector(container).innerHTML = row
+    let listBtns = document.getElementsByClassName('list-btn')
+    for (let btn of listBtns) {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (btn.dataset.action == 'view') {
+          this.showListPage(btn.dataset.id)
+        } else if (btn.dataset.action == 'delete') {
+          this.deleteList(btn.dataset.id)
+        }
+      });
+    }
+  }
+
+  showListPage(listId = null) {
+    if (listId == null) {
+      this.currentPage = 'listNew';
+      this.container.innerHTML = this.pages.listNew.replace('{{ listId }}', Object.keys(this.userLists).length + 1);
+      this.currentTasksCount = 0;
+    } else {
+      this.currentPage = 'listPopulated';
+      this.container.innerHTML = this.pages.listPopulated.replace('{{ listName }}', this.userLists[listId].name);
+      this.createTasksTable(listId, 'table#list-table tbody');
+    }
+    this.bindListPageEvents('table#list-table tbody', listId);
+  }
+
+  createTasksTable(listId, container) {
+    let userTasks = this.userLists[listId].tasks;
+    this.currentTasksCount = this.userLists[listId].tasks.length;
+    let row = ''
+    if (this.currentTasksCount > 0) {
+      for (const task in userTasks) {
+        row += // html
+          `<tr>
+          <td class="text-center">
+            <span class="task-number ">Task ${parseInt(task) + 1}</span>
+          </td>
+          <td>
+            <span class="task-description" id="task-description-${parseInt(task) + 1}">${userTasks[task][0]}</span>
+          </td>
+          <td class="text-center">
+            <input type="checkbox" class="task-status" id="task-description-1" data-list="${listId}", data-task="${task}" ${userTasks[task][1] ? 'checked' : ''}/>
+          </td>
+        </tr>`
+      }
+    } else {
+      row = // html
+        `<tr>
+          <td class="text-center">
+            <span class="task-number ">Task 1</span>
+          </td>
+          <td>
+            <input type="text" class="task-description" id="task-description-1" placeholder="Enter task description here" />
+          </td>
+          <td class="text-center">
+            <input type="checkbox" class="task-status" id="task-description-1" />
+          </td>
+        </tr>`
+    }
+    document.querySelector(container).innerHTML = row;
+  }
+
+  bindListPageEvents(container, listId = null) {
+    // Add New Task Button
+    document.getElementById('listpage-add-new-task').addEventListener('click', (e) => {
+      e.preventDefault();
+      this.currentTasksCount++;
+
+      let row = document.createElement('tr');
+      
+      // Task Serial Number Row
+      let taskSr = document.createElement('td');
+      let taskSrSpan = document.createElement('span');
+      taskSr.classList = 'text-center';
+      taskSrSpan.classList = 'task-number';
+      taskSrSpan.innerText = 'Task ' + this.currentTasksCount;
+      taskSr.appendChild(taskSrSpan);
+
+      // Task Serial Description Row
+      let taskDesc = document.createElement('td');
+      let taskDescInput = document.createElement('input');
+      taskDescInput.type = 'text';
+      taskDescInput.classList = 'task-description';
+      taskDescInput.placeholder = 'Enter task description here';
+      taskDescInput.id = "task-description-" + this.currentTasksCount;
+      taskDesc.appendChild(taskDescInput);
+      
+      // Task Serial Status Row
+      let taskStatus = document.createElement('td');
+      let taskStatusInput = document.createElement('input');
+      taskStatus.classList = 'text-center';
+      taskStatusInput.type = 'checkbox';
+      taskStatusInput.classList = 'task-status'
+      taskStatusInput.id = "task-status-" + this.currentTasksCount;
+      taskStatus.appendChild(taskStatusInput);
+
+      row.appendChild(taskSr);
+      row.appendChild(taskDesc);
+      row.appendChild(taskStatus);
+
+      document.querySelector(container).appendChild(row)
+    });
+
+    // Save Button
+    document.getElementById('listpage-save').addEventListener('click', (e) => {
+      let taskDescriptions = document.querySelectorAll('tbody input.task-description');
+      if (listId == null) {
+        listId = Object.keys(this.userLists).length + 1;
+        let listName = document.querySelector(`input#list-name-${listId}`).value;
+        if (listName.trim() != '') {
+          this.userLists[listId] = {
+            name: listName,
+            tasks: []
+          }
+        } else {
+          this.showFlashNotice('warning', 'List name cannot be empty');          
+          return this.showListPage();
+        }
+      }
+        
+      console.log(listId, this.userLists[listId], this.userLists[listId].tasks)
+      for (const taskDesc of taskDescriptions) {
+        if (taskDesc.value.trim() != '') {
+          this.userLists[listId].tasks.push([taskDesc.value, false])
+        } 
+      }
+      console.log(this.userLists);
+      localStorage.setItem(sha256(this.currentUser.email), JSON.stringify(this.userLists));
+      this.showFlashNotice('success', 'List saved successfully');          
+      return this.showListPage(listId);
+    });
+
+    // User Dashboard Button
+    document.getElementById('listpage-user-dashboard').addEventListener('click', (e) => {
+      e.preventDefault();
+      this.showDashBoardPage();
+    })
+
+    // Task Status Events
+    let taskStatusBtns = document.querySelectorAll('input[type=checkbox].task-status')
+    for (const btn of taskStatusBtns) {
+      btn.addEventListener('click', (e) => {
+        this.userLists[btn.dataset.list].tasks[btn.dataset.task][1] = btn.checked
+        localStorage.setItem(sha256(this.currentUser.email), JSON.stringify(this.userLists))
+        this.showFlashNotice('success', 'Status updated successfully', 1000);
+      });
+    }
+  }
+
+  deleteList(listId) {
+    this.userLists[listId] = this.userLists[listId + 1];
+    delete this.userLists[listId + 1];
+    localStorage.setItem(sha256(this.currentUser.email), JSON.stringify(this.userLists));
+    this.showFlashNotice('warning', 'List deleted successfully');
+    this.showDashBoardPage();
+  }
+  
+  showFlashNotice(status, msg, timeout = 5000) {
+    clearTimeout(this.flashNoticeTimeOut);
+    this.flashNotice.classList = status;
+    this.flashNotice.innerText = msg;
+    let parentDiv = this.flashNotice.parentElement.parentElement.parentElement;
+    parentDiv.classList.remove('hide');
+    parentDiv.classList.add('show');
+    this.flashNoticeTimeOut = setTimeout(() => {
+      this.flashNotice.classList = '';
+      this.flashNotice.innerText = '';
+    parentDiv.classList.remove('show');
+      parentDiv.classList.add('hide');
+    }, timeout);
+  }
 }
-// let lists = {
-//     1: {
-//         name: "My List 1",
-//         tasks: [
-//             ['Task 21', false],
-//             ['Task 22', false],
-//             ['Task 23', false],
-//             ['Task 24', false],
-//             ['Task 25', false],
-//             ['Task 26', false]
-//         ]
-//     },
-//     2: {
-//         name: "My List 2",
-//         tasks: [
-//             ['Task 21', false],
-//             ['Task 22', false],
-//             ['Task 23', false],
-//             ['Task 24', false],
-//             ['Task 25', false],
-//             ['Task 26', false]
-//         ]
-//     }
-// }
