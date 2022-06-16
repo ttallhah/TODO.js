@@ -1,60 +1,102 @@
 * {
-  box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 nav #to-do-lists-link {
- color: white;
- text-align: center;
+    color: white;
+    text-align: center;
+}
+
+#flash-notice {
+    right: 43%;
+    transition: ;
 }
 
 #flash-notice #notice-message {
-  border-radius: 50px;
-  padding: 5px 15;
-  color: white;
+    border-radius: 50px;
+    padding: 5px 15;
+    color: white;
 }
 
 #flash-notice .success {
-  background-color: rgb(115, 166, 87);
+    background-color: rgb(115, 166, 87);
+}
+
+#container {
+    top: 20%;
+    right: 200;
 }
 
 #flash-notice .danger {
-  background-color: rgb(208, 28, 41);
+    background-color: rgb(208, 28, 41);
 }
 
 #flash-notice .warning {
-  background-color: rgb(255, 184, 23);
+    background-color: rgb(255, 184, 23);
 }
 
 #empty-dashboard {
-  border: 1px solid rgb(9, 9, 103);
-  border-radius: 8px;
-  background-color: rgb(229, 229, 255);
-  text-align: center;
-  height: 150px;
-  font-size: 20px;
-  line-height: 150px;
+    border: 1px solid rgb(9, 9, 103);
+    border-radius: 8px;
+    background-color: rgb(229, 229, 255);
+    text-align: center;
+    height: 150px;
+    font-size: 20px;
+    line-height: 150px;
 }
 
 #dashboard-create-new-list {
-  margin-top: 8px;
+    margin-top: 8px;
 }
 
 table#dashboard-table {
-  width: 100%;
+    width: 100%;
 }
 
-table#dashboard-table th, table#dashboard-table td {
-  height: 50px;
-  line-height: 50px;
-  padding: 0;
-  border: 1px solid purple;
-  }
+table#dashboard-table th,
+table#dashboard-table td {
+    height: 50px;
+    line-height: 50px;
+    padding: 0;
+    border: 1px solid purple;
+}
 
 table#dashboard-table th:nth-child(even),
 table#dashboard-table td:nth-child(even) {
-  padding-left: 25px;
+    padding-left: 25px;
 }
 
 table#dashboard-table thead tr:nth-child(odd) {
-  background-color: rgb(234, 221, 244);
+    background-color: rgb(234, 221, 244);
+}
+
+#loader {
+    border: 16px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 16px solid #3498db;
+    width: 40px;
+    height: 40px;
+    margin: auto;
+    -webkit-animation: spin 2s linear infinite;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.blurr {
+    backdrop-filter: blur(5px);
+}
+
+.bg-black {
+    display: none;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }

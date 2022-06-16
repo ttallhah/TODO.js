@@ -10,6 +10,7 @@ $(document).ready(function() {
     toDoLists.getCurrentUser();
     toDoLists.nullifyCurrentUser();
     toDoLists.showHomePage();
+
 });
 
 class ToDoLists {
@@ -17,8 +18,8 @@ class ToDoLists {
         this.container = container;
         this.pages = pages;
         this.currentUser = null;
-        this.currentPage = null;
         this.flashNotice = document.querySelector('#flash-notice #notice-message');
+        this.loaderDiv = document.getElementById('loader')
         this.flashNoticeTimeOut = null;
         this.userLists = {};
         this.currentTasksCount = null;
@@ -36,18 +37,16 @@ class ToDoLists {
 
     showHomePage() {
         if (this.currentUser != undefined || this.currentUser != null) {
-            this.currentPage = 'homeLoggedIn';
-            this.container.innerHTML = this.pages.homeLoggedIn.replace('{{ userFirstName }}', this.currentUser.firstName);
-
+            this.getPage('/pages/homeLoggedIn.html', { userFirstName: this.currentUser.firstName });
             let dashBoardBtn = $('#home-dashboard')
             $(dashBoardBtn).click((e) => {
                 e.preventDefault();
                 this.showDashBoardPage();
             });
         } else {
-            this.currentPage = 'home';
-            this.container.innerHTML = this.pages.home;
+            // this.container.innerHTML = this.pages.home;
 
+            let data = this.getPage('/pages/home.html');
             let signupBtn = document.getElementById('home-signup');
             $(signupBtn).click((e) => {
                 e.preventDefault();
@@ -63,9 +62,8 @@ class ToDoLists {
     }
 
     showSignupPage() {
-        this.currentPage = 'signup';
-        this.container.innerHTML = this.pages.signup;
-
+        // this.container.innerHTML = this.pages.signup;
+        let data = this.getPage('/pages/signup.html');
         let signupForm = $('#signup-form');
         $(signupForm).submit((e) => {
             e.preventDefault();
@@ -75,11 +73,11 @@ class ToDoLists {
 
     signup() {
         let formData = {
-            firstName: $("#first-name"),
-            lastName: $("#last-name"),
-            email: $("#email"),
-            password: $("#password"),
-            confirmPassword: $("#confirm-password")
+            firstName: document.getElementById("first-name"),
+            lastName: document.getElementById("last-name"),
+            email: document.getElementById("email"),
+            password: document.getElementById("password"),
+            confirmPassword: document.getElementById("confirm-password")
         };
 
         if (this.validateForm(formData)) {
@@ -158,9 +156,8 @@ class ToDoLists {
     }
 
     showLoginPage() {
-        this.currentPage = 'login';
-        this.container.innerHTML = this.pages.login;
-
+        // this.container.innerHTML = this.pages.login;
+        let data = this.getPage('/pages/login.html');
         let loginForm = $('#login-form');
         $(loginForm).submit((e) => {
             e.preventDefault();
@@ -192,16 +189,19 @@ class ToDoLists {
     showDashBoardPage() {
         console.log(Object.keys(this.userLists).length)
         if (Object.keys(this.userLists).length > 0) {
-            this.currentPage = 'dashboardPopulated';
-            this.container.innerHTML = this.pages.dashboardPopulated.replace('{{ userFirstName }}', this.currentUser.firstName);
+            this.getPage('/pages/dashboardPopulated.html', { userFirstName: this.currentUser.firstName });
+            // this.container.innerHTML = this.pages.dashboardPopulated.replace('{{ userFirstName }}', this.currentUser.firstName);
             this.createListsTable('table#dashboard-table tbody');
+        } else if (localStorage.getItem(sha256(this.currentUser.email)) == {}) {
+            this.getPage('/pages/dashboardEmpty.html', { userFirstName: this.currentUser.firstName })
+                // this.container.innerHTML = this.pages.dashboardEmpty.replace('{{ userFirstName }}', this.currentUser.firstName);
         } else {
-            this.currentPage = 'dashboardEmpty';
-            this.container.innerHTML = this.pages.dashboardEmpty.replace('{{ userFirstName }}', this.currentUser.firstName);
+            this.getPage('/pages/dashboardEmpty.html', { userFirstName: this.currentUser.firstName });
         }
 
         // view list buttons
-        $('#dashboard-create-new-list').on('click', (event) => {
+        $("#dashboard-create-new-list").click((event) => {
+
             event.preventDefault();
             this.showListPage();
         })
@@ -212,17 +212,17 @@ class ToDoLists {
         for (let list in this.userLists) {
             row += // html
                 `<tr>
-          <td class="text-center">
-            List ${list}
-          </td>
-          <td>
-            ${ this.userLists[list].name}
-          </td>
-          <td class="text-center">
-            <a id="list-${list}-view" class="btn btn-success list-btn" href="javascript:void(0)" data-id="${list}" data-action="view">View</a>
-            <a id="list-${list}-delete" class="btn btn-danger list-btn" href="javascript:void(0)" data-id="${list}" data-action="delete" data-confirm="Are you sure?">Delete</a>
-          </td>
-        </tr>`
+            <td class="text-center">
+              List ${list}
+            </td>
+            <td>
+              ${this.userLists[list].name}
+            </td>
+            <td class="text-center">
+              <a id="list-${list}-view" class="btn btn-success list-btn" href="javascript:void(0)" data-id="${list}" data-action="view">View</a>
+              <a id="list-${list}-delete" class="btn btn-danger list-btn" href="javascript:void(0)" data-id="${list}" data-action="delete" data-confirm="Are you sure?">Delete</a>
+            </td>
+          </tr>`
         }
         document.querySelector(container).innerHTML = row
         let listBtns = document.getElementsByClassName('list-btn')
@@ -237,15 +237,14 @@ class ToDoLists {
             });
         }
     }
-
     showListPage(listId = null) {
         if (listId == null) {
-            this.currentPage = 'listNew';
-            this.container.innerHTML = this.pages.listNew.replace('{{ listId }}', Object.keys(this.userLists).length + 1);
+            this.getPage('/pages/listNew.html', { listId: Object.keys(this.userLists).length + 1 });
+            // this.container.innerHTML = this.pages.listNew.replace('{{listId}}', Object.keys(this.userLists).length + 1);
             this.currentTasksCount = 0;
         } else {
-            this.currentPage = 'listPopulated';
-            this.container.innerHTML = this.pages.listPopulated.replace('{{ listName }}', this.userLists[listId].name);
+            this.getPage('/pages/listPopulated.html', { listName: this.userLists[listId].name });
+            // this.container.innerHTML = this.pages.listPopulated.replace('{{listName}}', this.userLists[listId].name);
             this.createTasksTable(listId, 'table#list-table tbody');
         }
         this.bindListPageEvents('table#list-table tbody', listId);
@@ -260,7 +259,7 @@ class ToDoLists {
                 row += // html
                     `<tr>
           <td class="text-center">
-            <span class="task-number ">Task ${parseInt(task) + 1}</span>
+            <span class="task-number"> Task ${parseInt(task) + 1}</span>
           </td>
           <td>
             <span class="task-description" id="task-description-${parseInt(task) + 1}">${userTasks[task][0]}</span>
@@ -345,13 +344,13 @@ class ToDoLists {
                 }
             }
 
-            console.log(listId, this.userLists[listId], this.userLists[listId].tasks)
+
             for (const taskDesc of taskDescriptions) {
                 if (taskDesc.value.trim() != '') {
                     this.userLists[listId].tasks.push([taskDesc.value, false])
                 }
             }
-            console.log(this.userLists);
+
             localStorage.setItem(sha256(this.currentUser.email), JSON.stringify(this.userLists));
             this.showFlashNotice('success', 'List saved successfully');
             return this.showListPage(listId);
@@ -381,7 +380,16 @@ class ToDoLists {
         this.showFlashNotice('warning', 'List deleted successfully');
         this.showDashBoardPage();
     }
-
+    showLoader() {
+        this.loaderDiv.classList.remove('hide');
+        this.loaderDiv.classList.add('show');
+        this.container.classList.add('hide')
+    }
+    hideLoader() {
+        this.container.classList.remove('hide')
+        this.loaderDiv.classList.remove('show');
+        this.loaderDiv.classList.add('hide');
+    }
     showFlashNotice(status, msg, timeout = 5000) {
         clearTimeout(this.flashNoticeTimeOut);
         this.flashNotice.classList = status;
@@ -395,5 +403,44 @@ class ToDoLists {
             parentDiv.classList.remove('show');
             parentDiv.classList.add('hide');
         }, timeout);
+    }
+
+    getPage(url, variables = {}) {
+        this.showLoader();
+        $.ajax({
+            url: url,
+            async: false,
+            success: function(data) {
+                for (const v in variables) {
+                    data = data.replace(`{{ ${v} }}`, variables[v])
+                }
+
+                toDoLists.hideLoader();
+                return toDoLists.container.innerHTML = data;
+
+            },
+            error: function(xhr, exception) {
+                var msg = "";
+                if (xhr.status === 0) {
+                    msg = "Not connect.\n Verify Network.";
+                } else if (xhr.status == 404) {
+                    msg = "Requested page not found. [404]";
+                } else if (xhr.status == 500) {
+                    msg = "Internal Server Error [500].";
+                } else if (exception === "parsererror") {
+                    msg = "Requested JSON parse failed.";
+                } else if (exception === "timeout") {
+                    msg = "Time out error.";
+                } else if (exception === "abort") {
+                    msg = "Ajax request aborted.";
+                } else {
+                    msg = "Error:" + xhr.status + " ";
+                }
+                toDoLists.showFlashNotice('danger', msg, 10000);
+                return false;
+
+            }
+        });
+
     }
 }

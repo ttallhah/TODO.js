@@ -1,0 +1,32 @@
+<div class="mb-4 mt-4">
+    <h3>Create Your Account</h3>
+</div>
+
+<form style='border:1px solid black; background-color:rgb(165, 178, 198); padding:10px;' autocomplete="on" id="signup-form">
+    <div class="mb-3">
+        <label for="first-name" class="form-label">First Name</label>
+        <input type="text" class="form-control" id="first-name" pattern="[A-Za-z]{2,}" required>
+        <small class="form-errors text-danger" id='first-name-errors'></small>
+    </div>
+    <div class="mb-3">
+        <label for="last-name" class="form-label">Last Name</label>
+        <input type="text" class="form-control" id="last-name" pattern="[A-Za-z]{2,}" required>
+        <small class="form-errors text-danger" id='last-name-errors'></small>
+    </div>
+    <div class="mb-3">
+        <label for="email" class="form-label">Email address</label>
+        <input type="email" class="form-control" id="email" required>
+        <small class="form-errors text-danger" id='email-errors'></small>
+    </div>
+    <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" class="form-control" id="password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[~!@#$%^&*\(\)_+=-\`<>?]).{8,}" required>
+        <small class="form-errors text-danger" id='password-errors'></small>
+    </div>
+    <div class="mb-3">
+        <label for="confirm-password" class="form-label">Confirm Password</label>
+        <input type="password" class="form-control" id="confirm-password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" required><br>
+        <small class="form-errors text-danger" id='confirm-password-errors'></small>
+    </div>
+    <input type="submit" class="btn btn-primary" value="Sign Up">
+</form>
