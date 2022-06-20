@@ -246,14 +246,17 @@ class ToDoLists {
         } else {
             this.getPage('/pages/listPopulated.html', { listName: this.userLists[listId].name });
             // this.container.innerHTML = this.pages.listPopulated.replace('{{listName}}', this.userLists[listId].name);
-            this.createTasksTable(listId, 'table#list-table tbody');
+            this.createTasksTable(listId, 'table#list-table tbody', this.userLists);
 
         }
         this.bindListPageEvents('table#list-table tbody', listId);
     }
 
-    createTasksTable(listId, container) {
+    createTasksTable(listId, container, userLists) {
+
         let userTasks = this.userLists[listId].tasks;
+        let userListName = this.userLists[listId].name;
+        let currentUserEmail = this.currentUser.email
         this.currentTasksCount = this.userLists[listId].tasks.length;
         let row = ''
         if (this.currentTasksCount > 0) {
@@ -261,7 +264,7 @@ class ToDoLists {
                 row += // html
                     `<tbody id='sortable'><tr id="task-field-${parseInt(task)}">
           <td class="text-center">
-            <span class="task-number"> Task ${parseInt(task) + 1}</span>
+            <span class="task-number" id="task-No-${parseInt(task) + 1}"> Task ${parseInt(task) + 1}</span>
           </td>
           <td >
             <span class="task-description" id="task-description-${parseInt(task) + 1}">${userTasks[task][0]}</span>
@@ -270,24 +273,32 @@ class ToDoLists {
             <input type="checkbox" class="task-status" id="task-description-1" data-list="${listId}", data-task="${task}" ${userTasks[task][1] ? 'checked' : ''}/>
           </td>
         </tr></tbody>`
+                document.querySelector(container).innerHTML = row;
+
                 $("tbody").sortable({
-                    /*stop: function(event, ui) {
-                        alert("New position: " + ui.item.index());
-                    }*/
-                    start: function(e, ui) {
-                        // creates a temporary attribute on the element with the old index
-                        $(this).attr('data-previndex', ui.item.index());
-                    },
-                    update: function(e, ui) {
-                        // gets the new and old index then removes the temporary attribute
-                        var newIndex = ui.item.index();
-                        var oldIndex = $(this).attr('data-previndex');
-                        alert('old position of element = ' + oldIndex + '  and new position of element = ' + newIndex);
-                        $(this).removeAttr('data-previndex');
+                    update: function(e, ui, userLists) {
+
+
+                        var total_tasks = document.getElementsByClassName('task-description')
+                        var sorted_tasks = [];
+                        for (let index = 0; index < total_tasks.length; index++) {
+                            sorted_tasks.push([total_tasks[index].innerText, false]);
+                        }
+                        this.sortedUserList = {
+                            name: userListName,
+                            tasks: sorted_tasks
+                        }
+                        toDoLists.userLists[listId] = this.sortedUserList
+                        localStorage.setItem(sha256(currentUserEmail), JSON.stringify(toDoLists.userLists[listId]));
+                        console.log(listId)
+                        toDoLists.showListPage(listId)
                     }
+
                 });
                 $("tbody").disableSelection();
+
             }
+
         } else {
             row = // html
                 `<tr>
@@ -302,7 +313,7 @@ class ToDoLists {
           </td>
         </tr>`
         }
-        document.querySelector(container).innerHTML = row;
+
     }
 
     bindListPageEvents(container, listId = null) {
