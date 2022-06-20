@@ -88,10 +88,6 @@ table#dashboard-table thead tr:nth-child(odd) {
     backdrop-filter: blur(5px);
 }
 
-.bg-black {
-    display: none;
-}
-
 @keyframes spin {
     0% {
         transform: rotate(0deg);

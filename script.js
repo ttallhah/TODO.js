@@ -18,6 +18,7 @@ class ToDoLists {
         this.container = container;
         this.pages = pages;
         this.currentUser = null;
+        this.taskData = $("#sortable")
         this.flashNotice = document.querySelector('#flash-notice #notice-message');
         this.loaderDiv = document.getElementById('loader')
         this.flashNoticeTimeOut = null;
@@ -187,7 +188,6 @@ class ToDoLists {
     }
 
     showDashBoardPage() {
-        console.log(Object.keys(this.userLists).length)
         if (Object.keys(this.userLists).length > 0) {
             this.getPage('/pages/dashboardPopulated.html', { userFirstName: this.currentUser.firstName });
             // this.container.innerHTML = this.pages.dashboardPopulated.replace('{{ userFirstName }}', this.currentUser.firstName);
@@ -212,7 +212,7 @@ class ToDoLists {
         for (let list in this.userLists) {
             row += // html
                 `<tr>
-            <td class="text-center">
+            <td class="text-center" >
               List ${list}
             </td>
             <td>
@@ -223,6 +223,7 @@ class ToDoLists {
               <a id="list-${list}-delete" class="btn btn-danger list-btn" href="javascript:void(0)" data-id="${list}" data-action="delete" data-confirm="Are you sure?">Delete</a>
             </td>
           </tr>`
+
         }
         document.querySelector(container).innerHTML = row
         let listBtns = document.getElementsByClassName('list-btn')
@@ -246,6 +247,7 @@ class ToDoLists {
             this.getPage('/pages/listPopulated.html', { listName: this.userLists[listId].name });
             // this.container.innerHTML = this.pages.listPopulated.replace('{{listName}}', this.userLists[listId].name);
             this.createTasksTable(listId, 'table#list-table tbody');
+
         }
         this.bindListPageEvents('table#list-table tbody', listId);
     }
@@ -257,17 +259,34 @@ class ToDoLists {
         if (this.currentTasksCount > 0) {
             for (const task in userTasks) {
                 row += // html
-                    `<tr>
+                    `<tbody id='sortable'><tr id="task-field-${parseInt(task)}">
           <td class="text-center">
             <span class="task-number"> Task ${parseInt(task) + 1}</span>
           </td>
-          <td>
+          <td >
             <span class="task-description" id="task-description-${parseInt(task) + 1}">${userTasks[task][0]}</span>
           </td>
           <td class="text-center">
             <input type="checkbox" class="task-status" id="task-description-1" data-list="${listId}", data-task="${task}" ${userTasks[task][1] ? 'checked' : ''}/>
           </td>
-        </tr>`
+        </tr></tbody>`
+                $("tbody").sortable({
+                    /*stop: function(event, ui) {
+                        alert("New position: " + ui.item.index());
+                    }*/
+                    start: function(e, ui) {
+                        // creates a temporary attribute on the element with the old index
+                        $(this).attr('data-previndex', ui.item.index());
+                    },
+                    update: function(e, ui) {
+                        // gets the new and old index then removes the temporary attribute
+                        var newIndex = ui.item.index();
+                        var oldIndex = $(this).attr('data-previndex');
+                        alert('old position of element = ' + oldIndex + '  and new position of element = ' + newIndex);
+                        $(this).removeAttr('data-previndex');
+                    }
+                });
+                $("tbody").disableSelection();
             }
         } else {
             row = // html
